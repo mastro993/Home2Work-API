@@ -22,6 +22,11 @@ namespace HomeToWork.User
         public Company.Company Company { get; set; }
         public DateTime Regdate { get; set; }
 
+        public override string ToString()
+        {
+            return $"{Name} {Surname}";
+        }
+
         public static User Parse(SqlDataReader reader)
         {
             var companyDao = new CompanyDao();

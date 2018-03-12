@@ -120,9 +120,12 @@
     <Compile Include="Database\Config.cs" />
     <Compile Include="Firebase\FirebaseCloudMessanger.cs" />
     <Compile Include="Location\LocationDao.cs" />
-    <Compile Include="Match\Match.cs" />
-    <Compile Include="Match\MatchCalculator.cs" />
+    <Compile Include="Match\Matcher.cs" />
     <Compile Include="Match\MatchDao.cs" />
+    <Compile Include="Match\Match.cs" />
+    <Compile Include="Routine\Route.cs" />
+    <Compile Include="Routine\Routine.cs" />
+    <Compile Include="Routine\RoutineCalculator.cs" />
     <Compile Include="Share\Guest.cs" />
     <Compile Include="Share\GuestDao.cs" />
     <Compile Include="Share\Share.cs" />
@@ -150,6 +153,7 @@
     <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\NETStandard.Library.2.0.1\build\netstandard2.0\NETStandard.Library.targets" Condition="Exists('..\packages\NETStandard.Library.2.0.1\build\netstandard2.0\NETStandard.Library.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

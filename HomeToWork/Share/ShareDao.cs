@@ -81,6 +81,43 @@ namespace HomeToWork.Share
             return null;
         }
 
+        public Share GetOngoinByUserId(int userId)
+        {
+            var con = new SqlConnection(Config.ConnectionString);
+            var cmd = new SqlCommand
+            {
+                CommandText = $@"SELECT *
+                                 FROM share s
+                                 WHERE (s.host_id = {userId}
+                                 OR s.id IN (
+                                    SELECT g.share_id
+                                    FROM guest g
+                                    WHERE g.user_id = {userId} AND g.status = {Share.Created})
+                                 ) AND s.status = {Share.Created}",
+                Connection = con
+            };
+
+
+            con.Open();
+
+            try
+            {
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        return Share.Parse(reader);
+                    }
+                }
+            }
+            finally
+            {
+                con.Close();
+            }
+
+            return null;
+        }
+
 
         public Share GetById(int id)
         {

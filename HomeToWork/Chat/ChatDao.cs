@@ -62,17 +62,22 @@ namespace HomeToWork.Chat
             var cmd = new SqlCommand
             {
                 CommandText = $@"SELECT
-                                c.*,
-                                (SELECT COUNT(*)
-                                    FROM message m
-                                WHERE m.chat_id = c.id AND m.[read] = 0) AS unread_count,
-                                m.sender_id AS last_message_sender_id,
-                                m.text      AS last_message_text,
-                                m.time      AS last_message_time,
-                                m.[read]    AS last_message_read
-                                FROM chat_info c
-                                     LEFT JOIN message m ON c.last_message_id = m.id
-                                WHERE c.id = {chatId}",
+                                     c.id,
+                                    c.user1,
+                                    c.user2,
+                                    c.time,
+                                COALESCE(c.last_message_id, 0) as last_message_id,
+                                c.message_count,
+  (SELECT COUNT(*)
+   FROM message m
+   WHERE m.chat_id = c.id AND m.[read] = 0) AS unread_count,
+  COALESCE(m.sender_id, 0)                  AS last_message_sender_id,
+  COALESCE(m.text, '')                      AS last_message_text,
+  COALESCE(m.time, getdate())                                    AS last_message_time,
+  COALESCE(m.[read], cast(0 as BIT))                                   AS last_message_read
+FROM chat_info c
+  LEFT JOIN message m ON c.last_message_id = m.id
+WHERE c.id = {chatId}",
                 Connection = con
             };
 
@@ -103,14 +108,19 @@ namespace HomeToWork.Chat
             var cmd = new SqlCommand
             {
                 CommandText = $@"SELECT
-                                c.*,
-                                (SELECT COUNT(*)
-                                    FROM message m
-                                WHERE m.chat_id = c.id AND m.[read] = 0) AS unread_count,
-                                m.sender_id AS last_message_sender_id,
-                                m.text      AS last_message_text,
-                                m.time      AS last_message_time,
-                                m.[read]    AS last_message_read
+                                c.id,
+                                    c.user1,
+                                    c.user2,
+                                    c.time,
+                                COALESCE(c.last_message_id, 0) as last_message_id,
+                                c.message_count,
+  (SELECT COUNT(*)
+   FROM message m
+   WHERE m.chat_id = c.id AND m.[read] = 0) AS unread_count,
+  COALESCE(m.sender_id, 0)                  AS last_message_sender_id,
+  COALESCE(m.text, '')                      AS last_message_text,
+  COALESCE(m.time, getdate())                                    AS last_message_time,
+ COALESCE(m.[read], cast(0 as BIT))                                 AS last_message_read
                                 FROM chat_info c
                                      LEFT JOIN message m ON c.last_message_id = m.id
                                 WHERE (c.user1 = {userId1} AND c.user2 = {userId2}) 

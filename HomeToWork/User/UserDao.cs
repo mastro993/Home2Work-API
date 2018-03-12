@@ -81,15 +81,15 @@ namespace HomeToWork.User
             var cmd = new SqlCommand
             {
                 CommandText = $@"UPDATE users SET 
-                                    email = {user.Email}, 
-                                    name = {user.Name}, 
-                                    surname = {user.Surname}, 
-                                    location = {user.HomeLatLng}, 
-                                    cap = {user.Address.Cap}, 
-                                    city = {user.Address.City}, 
-                                    address = {user.Address.AddressLine}, 
+                                    email = '{user.Email}', 
+                                    name = '{user.Name}', 
+                                    surname = '{user.Surname}', 
+                                    location = '{user.HomeLatLng}', 
+                                    cap = '{user.Address.Cap}', 
+                                    city = '{user.Address.City}', 
+                                    address = '{user.Address.AddressLine}', 
                                     company_id = {user.Company.Id}
-                                WHERE id = @UserId",
+                                WHERE id = {user.Id}",
                 Connection = con
             };
 

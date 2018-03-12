@@ -10,72 +10,47 @@ namespace HomeToWork.User
     [Serializable]
     public class UserStats
     {
-        public int Shares { get; set; }
-        public int GuestShares { get; set; }
-        public int HostShares { get; set; }
-        public int MonthShares { get; set; }
-        public float MonthSharesAvg { get; set; }
-        public int SharedDistance { get; set; }
         public int MonthSharedDistance { get; set; }
-        public float MonthSharedDistanceAvg { get; set; }
-        public UserRanks GlobalRanks { get; set; }
-        public UserRanks CompanyRanks { get; set; }
+        public float MonthlySharedDistanceAvg { get; set; }
+        public int TotalSharedDistance { get; set; }
+
+
+        public int TotalShares { get; set; }
+        public int TotalGuestShares { get; set; }
+        public int TotalHostShares { get; set; }
+        public int MonthShares { get; set; }
+        public float MonthlySharesAvg { get; set; }
+        public int BestMonthShares { get; set; }
+        public int LongestShare { get; set; }
+
 
         public static UserStats Parse(SqlDataReader reader)
         {
-            var totalShares = (int) reader["total_shares"];
-            var guestShares = (int) reader["guest_shares"];
-            var hostShares = (int) reader["host_shares"];
-            var monthShares = (int) reader["month_shares"];
-            var monthSharesAvg = Single.Parse(reader["month_shares_avg"].ToString());
-            var sharedDistance = (int) reader["total_shared_distance"];
             var monthSharedDistance = (int) reader["month_shared_distance"];
-            var monthSharedDistanceAvg = Single.Parse(reader["month_shared_distance_avg"].ToString());
+            var monthlySharedDistanceAvg = float.Parse(reader["month_shared_distance_avg"].ToString());
+            var totalSharedDistance = (int) reader["total_shared_distance"];
 
-            var totalSharesRank = Int32.Parse(reader["total_shares_rank"].ToString());
-            var monthSharesRank = Int32.Parse(reader["month_shares_rank"].ToString());
-            var monthSharesAvgRank = Int32.Parse(reader["month_shares_avg_rank"].ToString());
-            var totalSharedDistanceRank = Int32.Parse(reader["total_shared_distance_rank"].ToString());
-            var monthSharedDistanceRank = Int32.Parse(reader["month_shared_distance_rank"].ToString());
-            var monthSharedDistanceAvgRank = Int32.Parse(reader["month_shared_distance_avg_rank"].ToString());
+            var totalShares = (int) reader["total_shares"];
+            var totalGuestShares = (int) reader["guest_shares"];
+            var totalHostShares = (int) reader["host_shares"];
+            var monthShares = (int) reader["month_shares"];
+            var monthlySharesAvg = float.Parse(reader["month_shares_avg"].ToString());
+            var bestMonthlyShares = (int)reader["month_shares_record"];
+            var longestShare = (int)reader["longest_share"]; ;
 
-
-            var totalSharesRankCompany = Int32.Parse(reader["total_shares_rank_company"].ToString());
-            var monthSharesRankCompany = Int32.Parse(reader["month_shares_rank_company"].ToString());
-            var monthSharesAvgRankCompany = Int32.Parse(reader["month_shares_avg_rank_company"].ToString());
-            var totalSharedDistanceRankCompany = Int32.Parse(reader["total_shared_distance_rank_company"].ToString());
-            var monthSharedDistanceRankCompany = Int32.Parse(reader["month_shared_distance_rank_company"].ToString());
-            var monthSharedDistanceAvgRankCompany =
-                Int32.Parse(reader["month_shared_distance_avg_rank_company"].ToString());
 
             return new UserStats()
             {
-                Shares = totalShares,
-                GuestShares = guestShares,
-                HostShares = hostShares,
+                TotalShares = totalShares,
+                TotalGuestShares = totalGuestShares,
+                TotalHostShares = totalHostShares,
                 MonthShares = monthShares,
-                MonthSharesAvg = monthSharesAvg,
-                SharedDistance = sharedDistance,
+                MonthlySharesAvg = monthlySharesAvg,
+                TotalSharedDistance = totalSharedDistance,
                 MonthSharedDistance = monthSharedDistance,
-                MonthSharedDistanceAvg = monthSharedDistanceAvg,
-                GlobalRanks = new UserRanks()
-                {
-                    Shares = totalSharesRank,
-                    MonthShares = monthSharesRank,
-                    MonthSharesAvg = monthSharesAvgRank,
-                    SharedDistance = totalSharedDistanceRank,
-                    MonthSharedDistance = monthSharedDistanceRank,
-                    MonthSharedDistanceAvg = monthSharedDistanceAvgRank
-                },
-                CompanyRanks = new UserRanks()
-                {
-                    Shares = totalSharesRankCompany,
-                    MonthShares = monthSharesRankCompany,
-                    MonthSharesAvg = monthSharesAvgRankCompany,
-                    SharedDistance = totalSharedDistanceRankCompany,
-                    MonthSharedDistance = monthSharedDistanceRankCompany,
-                    MonthSharedDistanceAvg = monthSharedDistanceAvgRankCompany
-                }
+                MonthlySharedDistanceAvg = monthlySharedDistanceAvg,
+                BestMonthShares = bestMonthlyShares,
+                LongestShare = longestShare
             };
         }
     }

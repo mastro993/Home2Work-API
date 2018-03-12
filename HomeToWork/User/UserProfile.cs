@@ -10,9 +10,9 @@ namespace HomeToWork.User
     [Serializable]
     public class UserProfile
     {
-        public DateTime Regdate { get; set; }
         public UserExp Exp { get; set; }
         public UserStats Stats { get; set; }
         public List<MonthlyActivity> Activity { get; set; }
+        public DateTime Regdate { get; set; }
     }
 }

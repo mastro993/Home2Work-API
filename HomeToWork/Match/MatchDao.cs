@@ -11,28 +11,28 @@ namespace HomeToWork.Match
 {
     public class MatchDao
     {
+
         public void Insert(Match match)
         {
             var con = new SqlConnection(Config.ConnectionString);
             var cmd = new SqlCommand
             {
                 CommandText =
-                    @"INSERT INTO match (host_id, guest_id, weekdays, score, distance, start_location, start_time, end_location, end_time) 
-                                VALUES (@HostID, @GuestID, @Weekdays, @Score, @Distance, @StartLatLng, @StartTime, @EndLatLng, @EndTime)"
+                    @"INSERT INTO match_new (user_id, host_id, home_score, job_score, time_score, arrival_time, departure_time, new, hidden, distance) 
+                                VALUES (@UserId, @HostId, @HomeScore, @JobScore, @TimeScore, @ArrivalTime, @DepartureTime, @New, @Hidden, @Distance)"
             };
 
 
-            cmd.Parameters.Add("@HostID", SqlDbType.Int).Value = match.Host.Id;
-            cmd.Parameters.Add("@GuestID", SqlDbType.Int).Value = match.Guest.Id;
-            cmd.Parameters.Add("@Weekdays", SqlDbType.VarChar).Value =
-                string.Join(",", match.Weekdays.Select(w => ((int) w).ToString()).ToArray());
-            cmd.Parameters.Add("@Score", SqlDbType.Int).Value = match.Score;
-            cmd.Parameters.Add("@Distance", SqlDbType.Int).Value = match.Distance;
-            cmd.Parameters.Add("@StartLatLng", SqlDbType.VarChar).Value = match.StartLocation.ToString();
-            cmd.Parameters.Add("@StartTime", SqlDbType.Time).Value = match.StartTime.TimeOfDay;
-            cmd.Parameters.Add("@EndLatLng", SqlDbType.VarChar).Value = match.EndLocation.ToString();
-            cmd.Parameters.Add("@EndTime", SqlDbType.Time).Value = match.EndTime.TimeOfDay;
+            cmd.Parameters.Add("@UserId", SqlDbType.Int).Value = match.UserId;
+            cmd.Parameters.Add("@HostId", SqlDbType.Int).Value = match.Host.Id;
+            cmd.Parameters.Add("@HomeScore", SqlDbType.Int).Value = match.HomeScore;
+            cmd.Parameters.Add("@JobScore", SqlDbType.Int).Value = match.JobScore;
+            cmd.Parameters.Add("@TimeScore", SqlDbType.Int).Value = match.TimeScore;
+            cmd.Parameters.Add("@ArrivalTime", SqlDbType.Time).Value = match.ArrivalTime.TimeOfDay;
+            cmd.Parameters.Add("@DepartureTime", SqlDbType.Time).Value = match.DepartureTime.TimeOfDay;
             cmd.Parameters.Add("@New", SqlDbType.Bit).Value = 1;
+            cmd.Parameters.Add("@Hidden", SqlDbType.Bit).Value = 0;
+            cmd.Parameters.Add("@Distance", SqlDbType.Int).Value = match.Distance;
 
             cmd.Connection = con;
 
@@ -43,12 +43,44 @@ namespace HomeToWork.Match
             con.Close();
         }
 
+        public List<Match> GetAll()
+        {
+            var con = new SqlConnection(Config.ConnectionString);
+            var cmd = new SqlCommand
+            {
+                CommandText = $@"SELECT * FROM match",
+                Connection = con
+            };
+
+            con.Open();
+
+            var matches = new List<Match>();
+
+            try
+            {
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        matches.Add(Match.Parse(reader));
+                    }
+                }
+            }
+            finally
+            {
+                con.Close();
+            }
+
+
+            return matches;
+        }
+
         public List<Match> GetByUserId(int userId)
         {
             var con = new SqlConnection(Config.ConnectionString);
             var cmd = new SqlCommand
             {
-                CommandText = $@"SELECT * FROM match WHERE guest_id = {userId} ORDER BY score DESC",
+                CommandText = $@"SELECT * FROM match WHERE user_id = {userId} AND hidden=0",
                 Connection = con
             };
 
@@ -82,7 +114,7 @@ namespace HomeToWork.Match
             var con = new SqlConnection(Config.ConnectionString);
             var cmd = new SqlCommand
             {
-                CommandText = $@"SELECT * FROM match WHERE id = {matchId}",
+                CommandText = $@"SELECT * FROM match WHERE match_id = {matchId}",
                 Connection = con
             };
 
@@ -116,9 +148,9 @@ namespace HomeToWork.Match
             var cmd = new SqlCommand
             {
                 CommandText = $@"UPDATE match SET 
-                                    new = {Convert.ToInt32(match.New)}, 
-                                    hidden = {Convert.ToInt32(match.Hidden)}
-                                WHERE id = {match.MatchId}",
+                                    new = {Convert.ToInt32(match.IsNew)}, 
+                                    hidden = {Convert.ToInt32(match.IsHidden)}
+                                WHERE match_id = {match.MatchId}",
                 Connection = con
             };
 

@@ -48,8 +48,8 @@ namespace HomeToWork.Chat
                     Id = lastMessageId,
                     Sender = new Author()
                     {
-                        Id = lastMsgSender.Id,
-                        Name = lastMsgSender.ToString()
+                        Id = lastMsgSender == null ? 0 : lastMsgSender.Id,
+                        Name = lastMsgSender == null? "" : lastMsgSender.ToString()
                     },
                     Text = lastMsgText,
                     Time = lastMsgTime,

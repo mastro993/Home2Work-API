@@ -146,10 +146,10 @@ namespace HomeToWork_API.Controllers
 
             var profile = new UserProfile()
             {
-                Regdate = Session.User.Regdate,
                 Exp = exp,
                 Stats = stats,
-                Activity = activity
+                Activity = activity,
+                Regdate = Session.User.Regdate
             };
 
             return Ok(profile);
@@ -202,7 +202,7 @@ namespace HomeToWork_API.Controllers
             var matches = matchDao.GetByUserId(Session.User.Id);
 
             if (matches.Count == 0)
-                matches = MatchCalculator.GetRelatedUsers(Session.User.Id);
+                matches = Matcher.GetAffineUsers(Session.User.Id);
 
             return Ok(matches);
         }
@@ -236,7 +236,7 @@ namespace HomeToWork_API.Controllers
         }
 
         [HttpGet]
-        [Route("api/user/{userId:int}/profile/")]
+        [Route("api/user/{userId:int}/profile")]
         public IHttpActionResult GetUserProfileById(int userId)
         {
             if (!Session.Authorized) return Unauthorized();
@@ -248,16 +248,16 @@ namespace HomeToWork_API.Controllers
             var expDao = new UserExpDao();
             var statsDao = new UserStatsDao();
 
-            var exp = expDao.GetUserExp(Session.User.Id);
-            var stats = statsDao.GetUserStats(Session.User.Id);
-            var activity = statsDao.GetUserMonthlyActivity(Session.User.Id);
+            var exp = expDao.GetUserExp(user.Id);
+            var stats = statsDao.GetUserStats(user.Id);
+            var activity = statsDao.GetUserMonthlyActivity(user.Id);
 
             var profile = new UserProfile()
             {
-                Regdate = user.Regdate,
                 Exp = exp,
                 Stats = stats,
-                Activity = activity
+                Activity = activity,
+                Regdate = user.Regdate
             };
 
             return Ok(profile);

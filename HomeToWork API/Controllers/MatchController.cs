@@ -29,7 +29,7 @@ namespace HomeToWork_API.Controllers
             if (match == null)
                 return NotFound();
 
-            match.New = false;
+            match.IsNew = false;
             matchDao.EditMatch(match);
 
             return Ok(match);

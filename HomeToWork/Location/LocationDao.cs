@@ -37,7 +37,7 @@ namespace HomeToWork.Location
             return locations;
         }
 
-        public List<Location> GetAllUserLocations(int userId, bool byDate)
+        public List<Location> GetAllUserLocations(long userId, bool byDate)
         {
             var con = new SqlConnection(Config.ConnectionString);
             var cmd = new SqlCommand
@@ -109,7 +109,7 @@ namespace HomeToWork.Location
             {
                 CommandText = $@"INSERT INTO location (user_id, latitude, longitude, time)
                                 OUTPUT Inserted.Id
-                                VALUES ({userId}, '{location.LatLng.Latitude}', '{location.LatLng.Latitude}', @Time)",
+                                VALUES ({userId}, '{location.LatLng.Latitude}', '{location.LatLng.Longitude}', @Time)",
                 Connection = con
             };
 

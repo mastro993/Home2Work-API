@@ -9,37 +9,31 @@ using HomeToWork.User;
 
 namespace HomeToWork.Match
 {
-    [Serializable]
     public class Match
     {
-        public int MatchId { get; set; }
+        public long MatchId { get; set; }
+        public long UserId { get; set; }
         public User.User Host { get; set; }
-        public User.User Guest { get; set; }
-        public List<DayOfWeek> Weekdays { get; set; }
-        public int Score { get; set; }
+        public int HomeScore { get; set; }
+        public int JobScore { get; set; }
+        public int TimeScore { get; set; }
+        public DateTime ArrivalTime { get; set; }
+        public DateTime DepartureTime { get; set; }
         public int Distance { get; set; }
-        public LatLng StartLocation { get; set; }
-        public DateTime StartTime { get; set; }
-        public LatLng EndLocation { get; set; }
-        public DateTime EndTime { get; set; }
-        public bool New { get; set; }
-        public bool Hidden { get; set; }
+        public bool IsNew { get; set; }
+        public bool IsHidden { get; set; }
 
         public static Match Parse(SqlDataReader reader)
         {
-            var weekdays = reader["weekdays"]
-                .ToString().Split(',').ToList()
-                .Select(w => (DayOfWeek) int.Parse(w)).ToList();
-
-            var matchId = int.Parse(reader["id"].ToString());
+            var matchId = int.Parse(reader["match_id"].ToString());
+            var userId = int.Parse(reader["user_id"].ToString());
             var hostId = (int) reader["host_id"];
-            var guestId = (int) reader["guest_id"];
-            var score = (int) reader["score"];
-            var distance = int.Parse(reader["distance"].ToString());
-            var startLatLng = LatLng.Parse(reader["start_location"].ToString());
-            var startTime = DateTime.ParseExact(reader["start_time"].ToString(), "HH:mm:ss", null);
-            var endLatLng = LatLng.Parse(reader["end_location"].ToString());
-            var endTime = DateTime.ParseExact(reader["end_time"].ToString(), "HH:mm:ss", null);
+            var homeScore = (int) reader["home_score"];
+            var jobScore = (int) reader["job_score"];
+            var timeScore = (int) reader["time_score"];
+            var arrivalTime = DateTime.ParseExact(reader["arrival_time"].ToString(), "HH:mm:ss", null);
+            var departureTime = DateTime.ParseExact(reader["departure_time"].ToString(), "HH:mm:ss", null);
+            var distance = (int) reader["distance"];
             var isNew = (bool) reader["new"];
             var isHidden = (bool) reader["hidden"];
 
@@ -48,17 +42,16 @@ namespace HomeToWork.Match
             return new Match()
             {
                 MatchId = matchId,
+                UserId = userId,
                 Host = userDao.GetById(hostId),
-                Guest = userDao.GetById(guestId),
-                Weekdays = weekdays,
-                Score = score,
+                HomeScore = homeScore,
+                JobScore = jobScore,
+                TimeScore = timeScore,
+                ArrivalTime = arrivalTime,
+                DepartureTime = departureTime,
                 Distance = distance,
-                StartLocation = startLatLng,
-                StartTime = startTime,
-                EndLocation = endLatLng,
-                EndTime = endTime,
-                New = isNew,
-                Hidden = isHidden
+                IsNew = isNew,
+                IsHidden = isHidden
             };
         }
     }

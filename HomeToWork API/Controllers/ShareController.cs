@@ -42,6 +42,26 @@ namespace HomeToWork_API.Controllers
             return Ok(share);
         }
 
+        [HttpGet]
+        [Route("api/share/ongoing")]
+        public IHttpActionResult GetOngoingShare()
+        {
+            if (!Session.Authorized) return Unauthorized();
+
+            var ongoingShare = shareDao.GetOngoinByUserId(Session.User.Id);
+
+            if (ongoingShare.Host.Id == Session.User.Id)
+            {
+                ongoingShare.Type = ShareType.Driver;
+            }
+            else
+            {
+                ongoingShare.Type = ShareType.Guest;
+            }
+
+            return Ok(ongoingShare);
+        }
+
         [HttpPost]
         [Route("api/share/new")]
         public IHttpActionResult PostNewShare()
@@ -177,6 +197,7 @@ namespace HomeToWork_API.Controllers
             return Ok(share);
         }
 
+
         [HttpPost]
         [Route("api/share/{shareId:int}/finish")]
         public IHttpActionResult PostFinishShare(int shareId)
@@ -226,6 +247,15 @@ namespace HomeToWork_API.Controllers
             shareDao.Edit(share);
 
             // TODO inviare messaggio ai guest dell'avvenuta cancellazione
+
+            share.Guests.ForEach(guest =>
+            {
+                var msgData = new Dictionary<string, string>();
+                msgData.Add("TYPE", "SHARE_DELETED_REQUEST");
+                FirebaseCloudMessanger.SendMessage(guest.User.Id, msgData);
+            });
+
+           
 
             return Ok(share);
         }
