@@ -4,25 +4,26 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
-using HomeToWork.Company;
+using data.Repositories;
+using domain.Entities;
+using domain.Interfaces;
 
 namespace HomeToWork_API.Controllers
 {
     public class CompanyController : ApiController
     {
-        private readonly CompanyDao companyDao;
+        private readonly ICompanyRepository _companyRepo;
 
         public CompanyController()
         {
-            companyDao = new CompanyDao();
+            _companyRepo = new CompanyRepository();
         }
-
 
         [HttpGet]
         [Route("api/company/list")]
         public IHttpActionResult GetCompanyList()
         {
-            var companies = companyDao.GetAll();
+            var companies = _companyRepo.GetAll();
             return Ok(companies);
         }
 
@@ -30,7 +31,7 @@ namespace HomeToWork_API.Controllers
         [Route("api/company/{companyId:int}")]
         public IHttpActionResult GetCompanyById(int companyId)
         {
-            var company = companyDao.GetById(companyId);
+            var company = _companyRepo.GetById(companyId);
             return Ok(company);
         }
 
@@ -46,11 +47,7 @@ namespace HomeToWork_API.Controllers
         [Route("api/company/insert")]
         public IHttpActionResult PostNewCompany(Company company)
         {
-            company.Id = companyDao.Insert(company);
-
-            if (company.Id == 0) return InternalServerError();
-
-            return Ok(company);
+            return NotFound();
         }
     }
 }

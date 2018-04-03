@@ -1,10 +1,14 @@
-﻿using HomeToWork.User;
+﻿
+using data.Repositories;
+using domain.Entities;
+using domain.Interfaces;
 using Microsoft.Ajax.Utilities;
 
 namespace HomeToWork_API.Auth
 {
     public class Session
     {
+
         public static string Token { get; set; }
 
         public static bool Authorized => !Token.IsNullOrWhiteSpace();
@@ -15,8 +19,8 @@ namespace HomeToWork_API.Auth
         {
             if (!Authorized) return;
 
-            var userDao = new UserDao();
-            User = userDao.GetBySessionToken(Token);
+            var userRepo = new UserRepository();
+            User = userRepo.GetBySessionToken(Token);
 
             if (User == null) Token = null;
         }

@@ -6,12 +6,11 @@ using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Web;
 using System.Web.Http;
-using HomeToWork.Chat;
-using HomeToWork.Firebase;
-using HomeToWork.Location;
-using HomeToWork.Match;
-using HomeToWork.Share;
-using HomeToWork.User;
+using System.Web.Http.Description;
+using data.Common;
+using data.Repositories;
+using domain.Entities;
+using domain.Interfaces;
 using HomeToWork_API.Auth;
 using HomeToWork_API.Utils;
 using Microsoft.Ajax.Utilities;
@@ -20,18 +19,71 @@ namespace HomeToWork_API.Controllers
 {
     public class UserController : ApiController
     {
-        private readonly UserDao userDao;
+
+        private readonly IUserRepository _userRepo;
 
         public UserController()
         {
-            userDao = new UserDao();
+            _userRepo = new UserRepository();
+        }
+
+        [HttpPost]
+        [Route("api/user/register")]
+        public IHttpActionResult Register(FormDataCollection data)
+        {
+            var valueMap = FormDataConverter.Convert(data);
+            var email = valueMap.Get("email");
+            var password = valueMap.Get("password");
+
+            var userId = _userRepo.Register(email, password);
+
+            if (userId != 0)
+            {
+                return Created(new Uri("api/user/" + userId), User);
+            }
+
+            return InternalServerError();
+        }
+
+
+        [HttpPost]
+        [Route("api/user/login")]
+        [ResponseType(typeof(User))]
+        public HttpResponseMessage Login(FormDataCollection data)
+        {
+            var valueMap = FormDataConverter.Convert(data);
+
+            var email = valueMap.Get("email");
+            var password = valueMap.Get("password");
+
+            if (email.IsNullOrWhiteSpace() || password.IsNullOrWhiteSpace())
+                return Request.CreateResponse(HttpStatusCode.BadRequest);
+
+            var user = _userRepo.Login(email, password);
+
+            if (user == null)
+                return Request.CreateResponse(HttpStatusCode.OK);
+
+
+            // Dopo al login tramite email e password creo un nuovo access token
+            //var accessToken = _userRepo.NewAccessToken(user.Id);
+            //user.AccessToken = accessToken;
+
+            // Una volta autenticato l'utente creo un token per la sessione
+            // e lo restituisco nell'header della risposta
+            var sessionToken = _userRepo.NewSessionToken(user.Id);
+
+            var response = Request.CreateResponse(HttpStatusCode.OK, user);
+            response.Headers.Add("X-User-Session-Token", sessionToken);
+            return response;
         }
 
         [HttpGet]
         [Route("api/user")]
         public IHttpActionResult Get()
         {
-            if (!Session.Authorized) return Unauthorized();
+            if (!Session.Authorized)
+                return Ok();
 
             return Ok(Session.User);
         }
@@ -41,7 +93,7 @@ namespace HomeToWork_API.Controllers
         public IHttpActionResult Put(User user)
         {
             if (!Session.Authorized) return Unauthorized();
-            user = userDao.Edit(user);
+            user = _userRepo.Edit(user);
 
             return Ok(user);
         }
@@ -105,7 +157,7 @@ namespace HomeToWork_API.Controllers
         {
             if (!Session.Authorized) return Unauthorized();
 
-            var fcmTokenDao = new FcmTokenDao();
+            var fcmTokenDao = new FcmTokenRepository();
 
             var valueMap = FormDataConverter.Convert(data);
             var newToken = valueMap.Get("token");
@@ -137,12 +189,9 @@ namespace HomeToWork_API.Controllers
         {
             if (!Session.Authorized) return Unauthorized();
 
-            var expDao = new UserExpDao();
-            var statsDao = new UserStatsDao();
-
-            var exp = expDao.GetUserExp(Session.User.Id);
-            var stats = statsDao.GetUserStats(Session.User.Id);
-            var activity = statsDao.GetUserMonthlyActivity(Session.User.Id);
+            var exp = _userRepo.GetUserExp(Session.User.Id);
+            var stats = _userRepo.GetUserStats(Session.User.Id);
+            var activity = _userRepo.GetUserMonthlyActivity(Session.User.Id);
 
             var profile = new UserProfile()
             {
@@ -155,80 +204,14 @@ namespace HomeToWork_API.Controllers
             return Ok(profile);
         }
 
-        [HttpGet]
-        [Route("api/user/chat")]
-        public IHttpActionResult GetChatList()
-        {
-            if (!Session.Authorized) return Unauthorized();
 
-            var chatDao = new ChatDao();
-
-            var chats = chatDao.GetUserChatList(Session.User.Id);
-            return Ok(chats);
-        }
-
-        [HttpPost]
-        [Route("api/user/location")]
-        public IHttpActionResult PostUserLocations(IEnumerable<Location> locations)
-        {
-            if (!Session.Authorized) return Unauthorized();
-
-            var locationDao = new LocationDao();
-
-            var locationList = locations.ToList();
-            try
-            {
-                foreach (var location in locationList)
-                {
-                    location.LocationId = locationDao.InsertUserLocation(Session.User.Id, location);
-                }
-            }
-            catch (Exception e)
-            {
-                return InternalServerError();
-            }
-
-            return Ok(locationList);
-        }
-
-        [HttpGet]
-        [Route("api/user/match")]
-        public IHttpActionResult GetMatches()
-        {
-            if (!Session.Authorized) return Unauthorized();
-
-            var matchDao = new MatchDao();
-
-            var matches = matchDao.GetByUserId(Session.User.Id);
-
-            if (matches.Count == 0)
-                matches = Matcher.GetAffineUsers(Session.User.Id);
-
-            return Ok(matches);
-        }
-
-        [HttpGet]
-        [Route("api/user/share")]
-        public IHttpActionResult GetShares()
-        {
-            if (!Session.Authorized) return Unauthorized();
-
-            var shareDao = new ShareDao();
-
-            var shares = shareDao.GetByUserID(Session.User.Id);
-
-            return Ok(shares);
-        }
-
-
-        /// ########################################################################################
         [HttpGet]
         [Route("api/user/{userId:int}")]
         public IHttpActionResult GetUserById(int userId)
         {
             if (!Session.Authorized) return Unauthorized();
 
-            var user = userDao.GetById(userId);
+            var user = _userRepo.GetById(userId);
 
             if (user != null) return Ok(user);
 
@@ -241,16 +224,13 @@ namespace HomeToWork_API.Controllers
         {
             if (!Session.Authorized) return Unauthorized();
 
-            var user = userDao.GetById(userId);
+            var user = _userRepo.GetById(userId);
             if (user == null)
                 return NotFound();
 
-            var expDao = new UserExpDao();
-            var statsDao = new UserStatsDao();
-
-            var exp = expDao.GetUserExp(user.Id);
-            var stats = statsDao.GetUserStats(user.Id);
-            var activity = statsDao.GetUserMonthlyActivity(user.Id);
+            var exp = _userRepo.GetUserExp(user.Id);
+            var stats = _userRepo.GetUserStats(user.Id);
+            var activity = _userRepo.GetUserMonthlyActivity(user.Id);
 
             var profile = new UserProfile()
             {
@@ -269,7 +249,7 @@ namespace HomeToWork_API.Controllers
         {
             if (!Session.Authorized) return Unauthorized();
 
-            var userList = userDao.GetAll();
+            var userList = _userRepo.GetAll();
             return Ok(userList);
         }
     }

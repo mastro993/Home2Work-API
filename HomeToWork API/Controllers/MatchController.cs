@@ -4,18 +4,37 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
-using HomeToWork.Match;
+using data.Common;
+using data.Repositories;
+using domain.Entities;
+using domain.Interfaces;
 using HomeToWork_API.Auth;
 
 namespace HomeToWork_API.Controllers
 {
     public class MatchController : ApiController
     {
-        private MatchDao matchDao;
+        private readonly IMatchRepository _matchRepo;
 
         public MatchController()
         {
-            matchDao = new MatchDao();
+            _matchRepo = new MatchRepository();
+        }
+
+        [HttpGet]
+        [Route("api/user/match")]
+        public IHttpActionResult GetMatches()
+        {
+            if (!Session.Authorized) return Unauthorized();
+
+            var matches = _matchRepo.GetByUserId(Session.User.Id);
+
+            if (matches.Count != 0) return Ok(matches);
+
+            var matcher = new Matcher();
+            matches = matcher.GetAffineUsers(Session.User.Id);
+
+            return Ok(matches);
         }
 
         [HttpGet]
@@ -24,13 +43,13 @@ namespace HomeToWork_API.Controllers
         {
             if (!Session.Authorized) return Unauthorized();
 
-            var match = matchDao.GetById(matchId);
+            var match = _matchRepo.GetById(matchId);
 
             if (match == null)
                 return NotFound();
 
             match.IsNew = false;
-            matchDao.EditMatch(match);
+            _matchRepo.EditMatch(match);
 
             return Ok(match);
         }
@@ -41,7 +60,7 @@ namespace HomeToWork_API.Controllers
         {
             if (!Session.Authorized) return Unauthorized();
 
-            match = matchDao.EditMatch(match);
+            match = _matchRepo.EditMatch(match);
 
             if (match != null) return Ok(match);
 

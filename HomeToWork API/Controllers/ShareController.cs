@@ -8,24 +8,45 @@ using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Web.Http;
 using System.Web.WebPages;
-using HomeToWork.Common;
-using HomeToWork.Firebase;
-using HomeToWork.Share;
-using HomeToWork.User;
+using data.Repositories;
+using domain.Entities;
+using domain.Interfaces;
 using HomeToWork_API.Auth;
+using HomeToWork_API.Firebase;
 using HomeToWork_API.Utils;
 
 namespace HomeToWork_API.Controllers
 {
     public class ShareController : ApiController
     {
-        private ShareDao shareDao;
-        private GuestDao guestDao;
+        private readonly IShareRepository _shareRepo;
+        private readonly IUserRepository _userRepo;
 
         public ShareController()
         {
-            shareDao = new ShareDao();
-            guestDao = new GuestDao();
+            _shareRepo = new ShareRepository();
+            _userRepo = new UserRepository();
+        }
+
+        [HttpGet]
+        [Route("api/user/share")]
+        public IHttpActionResult GetShares()
+        {
+            if (!Session.Authorized) return Unauthorized();
+
+            var shares = _shareRepo.GetUserShares(Session.User.Id);
+
+            foreach (var share in shares)
+            {
+                var distance = 0;
+                distance = share.Type == ShareType.Driver
+                    ? share.Guests.Sum(guest => guest.Distance)
+                    : share.Guests.FindLast(guest => guest.User.Id == Session.User.Id).Distance;
+
+                share.SharedDistance = distance;
+            }
+
+            return Ok(shares);
         }
 
         [HttpGet]
@@ -34,32 +55,46 @@ namespace HomeToWork_API.Controllers
         {
             if (!Session.Authorized) return Unauthorized();
 
-            var share = shareDao.GetById(id);
+            var share = _shareRepo.GetShare(id);
 
             if (share == null)
                 return NotFound();
+
+            var distance = 0;
+            distance = share.Type == ShareType.Driver
+                ? share.Guests.Sum(guest => guest.Distance)
+                : share.Guests.FindLast(guest => guest.User.Id == Session.User.Id).Distance;
+
+            share.SharedDistance = distance;
 
             return Ok(share);
         }
 
         [HttpGet]
-        [Route("api/share/ongoing")]
+        [Route("api/share/current")]
         public IHttpActionResult GetOngoingShare()
         {
             if (!Session.Authorized) return Unauthorized();
 
-            var ongoingShare = shareDao.GetOngoinByUserId(Session.User.Id);
+            var ongoingShare = _shareRepo.GetUserActiveShare(Session.User.Id);
 
-            if (ongoingShare.Host.Id == Session.User.Id)
-            {
-                ongoingShare.Type = ShareType.Driver;
-            }
-            else
-            {
-                ongoingShare.Type = ShareType.Guest;
-            }
+            if (ongoingShare == null)
+                return Ok();
+
+            ongoingShare.Type = ongoingShare.Host.Id == Session.User.Id ? ShareType.Driver : ShareType.Guest;
 
             return Ok(ongoingShare);
+        }
+
+        [HttpGet]
+        [Route("api/share/{shareId}/guests")]
+        public IHttpActionResult GetShareGuests(long shareId)
+        {
+            if (!Session.Authorized) return Unauthorized();
+
+            var guests = _shareRepo.GetShareGuests(shareId);
+
+            return Ok(guests);
         }
 
         [HttpPost]
@@ -68,19 +103,19 @@ namespace HomeToWork_API.Controllers
         {
             if (!Session.Authorized) return Unauthorized();
 
-            var share = shareDao.GetOngoinByHostId(Session.User.Id);
+            var share = _shareRepo.GetUserActiveShare(Session.User.Id);
 
-            if (share != null)
+            if (share != null && share.Host.Id == Session.User.Id)
                 return Ok(share);
 
             share = new Share
             {
                 Host = new User {Id = Session.User.Id},
-                Time = new DateTime(),
-                Guests = new List<Guest>()
+                Time = new DateTime()
             };
 
-            share.Id = shareDao.Insert(share);
+            share.Id = _shareRepo.Insert(share);
+            share = _shareRepo.GetShare(share.Id);
 
             return Ok(share);
         }
@@ -92,15 +127,20 @@ namespace HomeToWork_API.Controllers
             if (!Session.Authorized) return Unauthorized();
 
             var valueMap = FormDataConverter.Convert(data);
-            var startLocation = LatLng.Parse(valueMap.Get("location"));
+            var joinLat = double.Parse(valueMap.Get("joinLat"));
+            var joinLng = double.Parse(valueMap.Get("joinLng"));
 
-            var shareGuest = guestDao.GetById(shareId, Session.User.Id);
+            var share = _shareRepo.GetShare(shareId);
+            if (share == null)
+                return NotFound();
+
+            var shareGuest = _shareRepo.GetGuestById(shareId, Session.User.Id);
             if (shareGuest != null)
             {
                 if (shareGuest.Status == Guest.Canceled)
                 {
                     shareGuest.Status = Guest.Joined;
-                    guestDao.Edit(shareGuest);
+                    _shareRepo.Edit(shareGuest);
                 }
             }
             else
@@ -109,19 +149,25 @@ namespace HomeToWork_API.Controllers
                 {
                     ShareId = shareId,
                     User = new User {Id = Session.User.Id},
-                    StartLatLng = startLocation
+                    StartLat = joinLat,
+                    StartLng = joinLng
                 };
 
-                guestDao.Insert(shareGuest);
+                _shareRepo.Insert(shareGuest);
             }
 
-            var share = shareDao.GetById(shareId);
+
             var host = share.Host;
 
-            var msgData = new Dictionary<string, string>();
-            msgData.Add("TYPE", "SHARE_JOIN_REQUEST");
-
-            FirebaseCloudMessanger.SendMessage(host.Id, msgData);
+            var msgData = new Dictionary<string, string>
+            {
+                {"TYPE", "SHARE_JOIN"}
+            };
+            FirebaseCloudMessanger.SendMessage(
+                host.Id,
+                "Nuovo ospite", Session.User + " si è unito alla condivisione in corso",
+                msgData,
+                "it.gruppoinfor.hometowork.SHARE_JOIN");
 
             share.Type = ShareType.Guest;
 
@@ -129,82 +175,100 @@ namespace HomeToWork_API.Controllers
         }
 
         [HttpPost]
-        [Route("api/share/{shareId:int}/leave")]
-        public IHttpActionResult PostLeaveShare(int shareId)
+        [Route("api/share/leave")]
+        public IHttpActionResult PostLeaveShare()
         {
-            if (!Session.Authorized) return Unauthorized();
+            if (!Session.Authorized)
+                return Unauthorized();
 
-            var shareGuest = guestDao.GetById(shareId, Session.User.Id);
+            var currentShare = _shareRepo.GetUserActiveShare(Session.User.Id);
 
-            if (shareGuest == null)
-                return NotFound();
+            if (currentShare == null)
+                return Ok(false);
 
-            if (shareGuest.Status == Guest.Canceled)
-                return BadRequest();
+            var guests = _shareRepo.GetShareGuests(currentShare.Id);
+
+            var shareGuest = guests.Find(guest => guest.User.Id == Session.User.Id);
 
             shareGuest.Status = Guest.Canceled;
-            guestDao.Edit(shareGuest);
+            _shareRepo.Edit(shareGuest);
 
-            var share = shareDao.GetById(shareId);
-            var host = share.Host;
+            var host = currentShare.Host;
 
-            var msgData = new Dictionary<string, string>();
-            msgData.Add("TYPE", "SHARE_LEAVE_REQUEST");
-            FirebaseCloudMessanger.SendMessage(host.Id, msgData);
+            var msgData = new Dictionary<string, string>
+            {
+                {"TYPE", "SHARE_LEAVED"}
+            };
+            FirebaseCloudMessanger.SendMessage(
+                host.Id,
+                "Condivisione abbandonata", Session.User + " ha abbandonato la condivisione in corso",
+                msgData,
+                "it.gruppoinfor.hometowork.SHARE_LEAVED");
 
-            return Ok(share);
+            return Ok(true);
         }
 
         [HttpPost]
-        [Route("api/share/{shareId:int}/complete")]
-        public IHttpActionResult PostCompleteShare(int shareId, FormDataCollection data)
+        [Route("api/share/complete")]
+        public IHttpActionResult PostCompleteShare(FormDataCollection data)
         {
             if (!Session.Authorized) return Unauthorized();
 
             var valueMap = FormDataConverter.Convert(data);
-            var endLocation = LatLng.Parse(valueMap.Get("location"));
+            var completeLat = double.Parse(valueMap.Get("completeLat"));
+            var completeLng = double.Parse(valueMap.Get("completeLng"));
 
-            var guest = guestDao.GetById(shareId, Session.User.Id);
+            var currentShare = _shareRepo.GetUserActiveShare(Session.User.Id);
 
-            if (guest == null)
-                return NotFound();
+            if (currentShare == null)
+                return Ok(false);
 
-            if (guest.Status == Guest.Canceled)
-                return BadRequest();
+            var guests = _shareRepo.GetShareGuests(currentShare.Id);
+
+            var shareGuest = guests.Find(guest => guest.User.Id == Session.User.Id);
+
+            if (shareGuest == null)
+                return Ok(false);
 
             var request = new DirectionsRequest()
             {
-                Origin = new GoogleApi.Entities.Common.Location(guest.StartLatLng.Latitude,
-                    guest.StartLatLng.Longitude),
-                Destination = new GoogleApi.Entities.Common.Location(endLocation.Latitude, endLocation.Longitude)
+                Origin = new GoogleApi.Entities.Common.Location(shareGuest.StartLat, shareGuest.StartLng),
+                Destination = new GoogleApi.Entities.Common.Location(completeLat, completeLng)
             };
             var result = GoogleMaps.Directions.Query(request);
 
-            guest.EndLatLng = endLocation;
-            guest.Distance = result.Routes.First().Legs.First().Distance.Value;
-            guestDao.Complete(guest);
+            shareGuest.EndLat = completeLat;
+            shareGuest.EndLng = completeLng;
+            shareGuest.Distance = result.Routes.First().Legs.First().Distance.Value;
+            _shareRepo.Complete(shareGuest);
 
-            var share = shareDao.GetById(shareId);
-            var host = share.Host;
+            var host = currentShare.Host;
 
-            var msgData = new Dictionary<string, string>();
-            msgData.Add("TYPE", "SHARE_COMPLETE_REQUEST");
-            FirebaseCloudMessanger.SendMessage(host.Id, msgData);
+            var msgData = new Dictionary<string, string>
+            {
+                {"TYPE", "SHARE_COMPLETED"}
+            };
+            FirebaseCloudMessanger.SendMessage(
+                host.Id,
+                "Condivisione completata",
+                Session.User + " ha completato la condivisione percorrendo " + shareGuest.Distance / 1000.0 + " Km",
+                msgData,
+                "it.gruppoinfor.hometowork.SHARE_COMPLETED");
 
-            var expDao = new UserExpDao();
-            expDao.AddExpToUser(guest.User.Id, guest.Distance / 10);
+            _userRepo.AddExpToUser(shareGuest.User.Id, shareGuest.Distance / 10);
 
-            return Ok(share);
+            return Ok(true);
         }
 
 
         [HttpPost]
-        [Route("api/share/{shareId:int}/finish")]
-        public IHttpActionResult PostFinishShare(int shareId)
+        [Route("api/share/finish")]
+        public IHttpActionResult PostFinishShare()
         {
-            if (!Session.Authorized) return Unauthorized();
+            if (!Session.Authorized)
+                return Unauthorized();
 
-            var share = shareDao.GetById(shareId);
+            var share = _shareRepo.GetUserActiveShare(Session.User.Id);
 
             if (share == null)
                 return NotFound();
@@ -212,82 +276,100 @@ namespace HomeToWork_API.Controllers
             if (share.Host.Id != Session.User.Id)
                 return BadRequest();
 
-            share.Status = Share.Completed;
-            shareDao.Edit(share);
+            share.Status = ShareStatus.Completed;
+            _shareRepo.Edit(share);
 
             var totalDistance = 0;
 
+            var guests = _shareRepo.GetShareGuests(share.Id);
 
-            foreach (Guest guest in share.Guests)
+            foreach (var guest in guests)
             {
                 totalDistance += guest.Distance;
             }
 
-            var expDao = new UserExpDao();
-            expDao.AddExpToUser(share.Host.Id, totalDistance / 10);
+            _userRepo.AddExpToUser(share.Host.Id, totalDistance / 10);
 
-            return Ok(share);
+            return Ok(true);
         }
 
         [HttpDelete]
-        [Route("api/share/{shareId:int}")]
-        public IHttpActionResult PostCancelShare(int shareId)
+        [Route("api/share")]
+        public IHttpActionResult PostCancelShare()
         {
-            if (!Session.Authorized) return Unauthorized();
+            if (!Session.Authorized)
+                return Unauthorized();
 
-            var share = shareDao.GetById(shareId);
+            var share = _shareRepo.GetUserActiveShare(Session.User.Id);
 
             if (share == null)
                 return NotFound();
 
-            if (share.Status == Share.Canceled)
-                return BadRequest();
+            if (share.Host.Id != Session.User.Id)
+                return NotFound();
 
-            share.Status = Share.Canceled;
-            shareDao.Edit(share);
+            if (share.Status == ShareStatus.Canceled)
+                return NotFound();
 
-            // TODO inviare messaggio ai guest dell'avvenuta cancellazione
+            share.Status = ShareStatus.Canceled;
+            _shareRepo.Edit(share);
 
-            share.Guests.ForEach(guest =>
+            var guests = _shareRepo.GetShareGuests(share.Id);
+
+
+            guests.ForEach(guest =>
             {
-                var msgData = new Dictionary<string, string>();
-                msgData.Add("TYPE", "SHARE_DELETED_REQUEST");
-                FirebaseCloudMessanger.SendMessage(guest.User.Id, msgData);
+                var msgData = new Dictionary<string, string>
+                {
+                    {"TYPE", "SHARE_CANCELED"}
+                };
+                FirebaseCloudMessanger.SendMessage(
+                    guest.User.Id,
+                    "Condivisione annullata", Session.User + " ha annullato la condivisione in corso",
+                    msgData,
+                    "it.gruppoinfor.hometowork.SHARE_CANCELED");
             });
 
-           
 
-            return Ok(share);
+            return Ok(true);
         }
 
         [HttpPost]
-        [Route("api/share/{shareId:int}/ban")]
-        public IHttpActionResult PostBanUserFromShare(int shareId, FormDataCollection data)
+        [Route("api/share/ban")]
+        public IHttpActionResult PostBanUserFromShare(FormDataCollection data)
         {
             if (!Session.Authorized) return Unauthorized();
 
             var valueMap = FormDataConverter.Convert(data);
             var guestId = valueMap.Get("guestId").AsInt();
 
-            var shareGuest = guestDao.GetById(shareId, guestId);
+            var share = _shareRepo.GetUserActiveShare(Session.User.Id);
+
+            if (share.Host.Id != Session.User.Id)
+                return NotFound();
+
+            var shareGuest = _shareRepo.GetGuestById(share.Id, guestId);
 
             if (shareGuest == null)
                 return NotFound();
 
             if (shareGuest.Status == Guest.Canceled)
-                return BadRequest();
+                return NotFound();
 
             shareGuest.Status = Guest.Canceled;
-            guestDao.Edit(shareGuest);
+            _shareRepo.Edit(shareGuest);
 
-            var share = shareDao.GetById(shareId);
-            var host = share.Host;
+            var msgData = new Dictionary<string, string>
+            {
+                {"TYPE", "SHARE_BAN"}
+            };
+            FirebaseCloudMessanger.SendMessage(
+                guestId,
+                "Sei stato espulso", Session.User + " ti ha espulso dalla condivisione in corso",
+                msgData,
+                "it.gruppoinfor.hometowork.SHARE_BAN");
 
-            var msgData = new Dictionary<string, string>();
-            msgData.Add("TYPE", "SHARE_LEAVE_REQUEST");
-            FirebaseCloudMessanger.SendMessage(host.Id, msgData);
-
-            return Ok(share);
+            return Ok(true);
         }
     }
 }
