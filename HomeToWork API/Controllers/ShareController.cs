@@ -137,9 +137,9 @@ namespace HomeToWork_API.Controllers
             var shareGuest = _shareRepo.GetGuestById(shareId, Session.User.Id);
             if (shareGuest != null)
             {
-                if (shareGuest.Status == Guest.Canceled)
+                if (shareGuest.Status == Guest.GuestStatus.Leaved)
                 {
-                    shareGuest.Status = Guest.Joined;
+                    shareGuest.Status = Guest.GuestStatus.Joined;
                     _shareRepo.Edit(shareGuest);
                 }
             }
@@ -190,7 +190,7 @@ namespace HomeToWork_API.Controllers
 
             var shareGuest = guests.Find(guest => guest.User.Id == Session.User.Id);
 
-            shareGuest.Status = Guest.Canceled;
+            shareGuest.Status = Guest.GuestStatus.Leaved;
             _shareRepo.Edit(shareGuest);
 
             var host = currentShare.Host;
@@ -353,10 +353,10 @@ namespace HomeToWork_API.Controllers
             if (shareGuest == null)
                 return NotFound();
 
-            if (shareGuest.Status == Guest.Canceled)
+            if (shareGuest.Status == Guest.GuestStatus.Leaved)
                 return NotFound();
 
-            shareGuest.Status = Guest.Canceled;
+            shareGuest.Status = Guest.GuestStatus.Leaved;
             _shareRepo.Edit(shareGuest);
 
             var msgData = new Dictionary<string, string>

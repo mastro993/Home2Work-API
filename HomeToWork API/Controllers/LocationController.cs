@@ -36,6 +36,7 @@ namespace HomeToWork_API.Controllers
             }
             catch (Exception e)
             {
+                Console.WriteLine(e);
                 return InternalServerError();
             }
 

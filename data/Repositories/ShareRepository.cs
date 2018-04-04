@@ -161,7 +161,7 @@ namespace data.Repositories
             var cmd = new SqlCommand
             {
                 CommandText = $@"UPDATE share SET 
-                                    status = {share.Status}
+                                    status = {(int)share.Status}
                                 WHERE id = {share.Id}",
                 Connection = con
             };
@@ -297,7 +297,7 @@ namespace data.Repositories
             var cmd = new SqlCommand
             {
                 CommandText = $@"UPDATE guest SET 
-                                    status = {guest.Status}
+                                    status = {(int)guest.Status}
                                 WHERE share_id = {guest.ShareId} AND user_id = {guest.User.Id}",
                 Connection = con
             };

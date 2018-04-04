@@ -274,7 +274,7 @@ ORDER BY last_message_read ASC, last_message_time DESC",
 
             var cmd = new SqlCommand
             {
-                CommandText = $@"SELECT * WHERE chat_id = {chatId}",
+                CommandText = $@"SELECT * FROM message WHERE chat_id = {chatId}",
                 Connection = con
             };
 

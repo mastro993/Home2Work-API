@@ -323,7 +323,7 @@ namespace data.Repositories
             {
                 CommandText = $@"UPDATE users_data SET 
                                     exp = {exp}
-                                WHERE id = {userId}",
+                                WHERE user_id = {userId}",
                 Connection = con
             };
 
