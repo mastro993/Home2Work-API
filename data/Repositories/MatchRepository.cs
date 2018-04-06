@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using data.Common;
+using data.Common.Utils;
 using data.Database;
 using data.Mappers;
 using domain.Entities;
@@ -20,23 +21,9 @@ namespace data.Repositories
             var cmd = new SqlCommand
             {
                 CommandText =
-                    @"INSERT INTO match (user_id, host_id, home_score, job_score, time_score, arrival_time, departure_time, new, hidden, distance) 
-                                VALUES (@UserId, @HostId, @HomeScore, @JobScore, @TimeScore, @ArrivalTime, @DepartureTime, @New, @Hidden, @Distance)"
+                    $"insert_user_match {match.UserId}, {match.Host.Id}, {match.HomeScore}, {match.JobScore}, {match.TimeScore}, {match.ArrivalTime.TimeOfDay}, {match.DepartureTime.TimeOfDay}, {match.Distance}",
+                Connection = con
             };
-
-
-            cmd.Parameters.Add("@UserId", SqlDbType.Int).Value = match.UserId;
-            cmd.Parameters.Add("@HostId", SqlDbType.Int).Value = match.Host.Id;
-            cmd.Parameters.Add("@HomeScore", SqlDbType.Int).Value = match.HomeScore;
-            cmd.Parameters.Add("@JobScore", SqlDbType.Int).Value = match.JobScore;
-            cmd.Parameters.Add("@TimeScore", SqlDbType.Int).Value = match.TimeScore;
-            cmd.Parameters.Add("@ArrivalTime", SqlDbType.Time).Value = match.ArrivalTime.TimeOfDay;
-            cmd.Parameters.Add("@DepartureTime", SqlDbType.Time).Value = match.DepartureTime.TimeOfDay;
-            cmd.Parameters.Add("@New", SqlDbType.Bit).Value = 1;
-            cmd.Parameters.Add("@Hidden", SqlDbType.Bit).Value = 0;
-            cmd.Parameters.Add("@Distance", SqlDbType.Int).Value = match.Distance;
-
-            cmd.Connection = con;
 
             con.Open();
 
@@ -82,11 +69,9 @@ namespace data.Repositories
             var con = new SqlConnection(Config.ConnectionString);
             var cmd = new SqlCommand
             {
-                CommandText = $@"SELECT * FROM match WHERE user_id = {userId} AND hidden=0",
+                CommandText = $"get_user_matches {userId}",
                 Connection = con
             };
-
-            cmd.Parameters.Add("@UserId", SqlDbType.Int).Value = userId;
 
             con.Open();
 
@@ -116,7 +101,7 @@ namespace data.Repositories
             var con = new SqlConnection(Config.ConnectionString);
             var cmd = new SqlCommand
             {
-                CommandText = $@"SELECT * FROM match WHERE match_id = {matchId}",
+                CommandText = $"get_match {matchId}",
                 Connection = con
             };
 
@@ -148,10 +133,8 @@ namespace data.Repositories
             var con = new SqlConnection(Config.ConnectionString);
             var cmd = new SqlCommand
             {
-                CommandText = $@"UPDATE match SET 
-                                    new = {Convert.ToInt32(match.IsNew)}, 
-                                    hidden = {Convert.ToInt32(match.IsHidden)}
-                                WHERE match_id = {match.MatchId}",
+                CommandText =
+                    $"edit_match {match.MatchId}, {Convert.ToInt32(match.IsNew)}, {Convert.ToInt32(match.IsHidden)}",
                 Connection = con
             };
 

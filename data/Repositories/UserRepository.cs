@@ -19,32 +19,6 @@ namespace data.Repositories
         private readonly Mapper<SqlDataReader, UserStats> _statsMapper = new UserStatsSqlMapper();
         private readonly Mapper<SqlDataReader, SharingActivity> _sharingActivityMapper = new SharingActivitySqlMapper();
 
-        public int Register(string email, string password)
-        {
-            var con = new SqlConnection(Config.ConnectionString);
-            var salt = HashingUtils.Sha256(StringUtils.RandomString());
-            var saltedPassword = HashingUtils.Sha256(password + salt);
-
-            var cmd = new SqlCommand
-            {
-                CommandText = $@"INSERT INTO users (email, password, salt) 
-                                OUTPUT Inserted.Id
-                                VALUES ('{email}', '{saltedPassword}', '{salt}')",
-                Connection = con
-            };
-
-            con.Open();
-
-            try
-            {
-                return (int) cmd.ExecuteScalar();
-            }
-            finally
-            {
-                con.Close();
-            }
-        }
-
         public User Login(string email, string password)
         {
             var con = new SqlConnection(Config.ConnectionString);
@@ -53,10 +27,7 @@ namespace data.Repositories
 
             var cmd = new SqlCommand
             {
-                CommandText =
-                    $@"SELECT * FROM users
-                        LEFT JOIN users_data ON users.id = users_data.user_id  
-                        WHERE email = '{email}' AND password = '{saltedPassword}'",
+                CommandText = $"user_login '{email}', '{saltedPassword}'",
                 Connection = con
             };
 
@@ -88,7 +59,7 @@ namespace data.Repositories
 
             var cmd = new SqlCommand
             {
-                CommandText = $@"SELECT salt FROM users WHERE email = '{email}'",
+                CommandText = $@"get_user_salt '{email}'",
                 Connection = con
             };
 
@@ -117,9 +88,7 @@ namespace data.Repositories
             var con = new SqlConnection(Config.ConnectionString);
             var cmd = new SqlCommand
             {
-                CommandText = $@"SELECT * FROM users
-                                 LEFT JOIN users_data ON users.id = users_data.user_id    
-                            WHERE user_id = {userId}",
+                CommandText = $"get_user {userId}",
                 Connection = con
             };
 
@@ -151,7 +120,7 @@ namespace data.Repositories
             var con = new SqlConnection(Config.ConnectionString);
             var cmd = new SqlCommand
             {
-                CommandText = @"SELECT * FROM users LEFT JOIN users_data ON users.id = users_data.user_id",
+                CommandText = "SELECT * FROM users LEFT JOIN users_data ON users.id = users_data.user_id",
                 Connection = con
             };
 
@@ -178,72 +147,6 @@ namespace data.Repositories
             return users;
         }
 
-        public User Edit(User user)
-        {
-            var con = new SqlConnection(Config.ConnectionString);
-            var cmd = new SqlCommand
-            {
-                CommandText = $@"UPDATE users_data SET 
-                                    email = '{user.Email}', 
-                                    name = '{user.Name}', 
-                                    surname = '{user.Surname}', 
-                                    home_lat = {user.Address.Latitude}, 
-                                    home_lng = {user.Address.Longitude},
-                                    street = '{user.Address.Street}',
-                                    region = {user.Address.Region},
-                                    city = '{user.Address.City}',
-                                    cap = '{user.Address.PostalCode}',
-                                    district = '{user.Address.District}',
-                                    company_id = {user.Company.Id}
-                                WHERE id = {user.Id}",
-                Connection = con
-            };
-
-            con.Open();
-
-            int rows;
-
-            try
-            {
-                rows = cmd.ExecuteNonQuery();
-            }
-            finally
-            {
-                con.Close();
-            }
-
-            return rows > 0 ? user : null;
-        }
-
-        public bool EditPassword(int userId, string newPassword, string salt)
-        {
-            var con = new SqlConnection(Config.ConnectionString);
-            var cmd = new SqlCommand
-            {
-                CommandText = $@"UPDATE users SET 
-                                    password = '{newPassword}', 
-                                    salt = '{salt}' 
-                                WHERE id = {userId}",
-                Connection = con
-            };
-
-
-            cmd.Connection = con;
-
-            var rows = 0;
-
-            try
-            {
-                rows = cmd.ExecuteNonQuery();
-            }
-            finally
-            {
-                con.Close();
-            }
-
-            return rows > 0;
-        }
-
         public string NewSessionToken(long userId)
         {
             var con = new SqlConnection(Config.ConnectionString);
@@ -254,7 +157,7 @@ namespace data.Repositories
 
             var cmd = new SqlCommand
             {
-                CommandText = $@"UPDATE users SET session_token = '{newToken}' WHERE id = {userId}",
+                CommandText = $"set_session_token {userId}, '{newToken}'",
                 Connection = con
             };
 
@@ -276,9 +179,7 @@ namespace data.Repositories
             var con = new SqlConnection(Config.ConnectionString);
             var cmd = new SqlCommand
             {
-                CommandText = $@"SELECT * FROM users
-                                LEFT JOIN users_data ON users.id = users_data.user_id 
-                                WHERE session_token = '{sessionToken}'",
+                CommandText = $"get_user_from_session '{sessionToken}'",
                 Connection = con
             };
 
@@ -321,9 +222,7 @@ namespace data.Repositories
 
             var cmd = new SqlCommand
             {
-                CommandText = $@"UPDATE users_data SET 
-                                    exp = {exp}
-                                WHERE user_id = {userId}",
+                CommandText = $"add_user_exp {userId}, {exp}",
                 Connection = con
             };
 
@@ -345,10 +244,7 @@ namespace data.Repositories
             var con = new SqlConnection(Config.ConnectionString);
             var cmd = new SqlCommand
             {
-                CommandText = $@"SELECT *
-                                FROM user_statistics US
-                                INNER JOIN user_ranks UR ON UR.user_id = US.user_id
-                                WHERE UR.user_id = {userId}",
+                CommandText = $"get_user_stats {userId}",
                 Connection = con
             };
 
@@ -380,30 +276,7 @@ namespace data.Repositories
             var con = new SqlConnection(Config.ConnectionString);
             var cmd = new SqlCommand
             {
-                CommandText = $@"WITH months AS
-                                (
-                                  SELECT 1 AS Month
-                                  UNION ALL
-                                  SELECT Month + 1
-                                  FROM months
-                                  WHERE Month < 12
-                                )
-
-                                SELECT
-                                  M.Month,
-                                  COALESCE(A.shares, 0) as shares,
-                                  COALESCE(A.distance, 0) as distance
-                                FROM (SELECT
-                                        MONTH(time)            AS month,
-                                        SUM(distance)          AS distance,
-                                        Count(DISTINCT (S.id)) AS shares
-                                      FROM share S
-                                        LEFT JOIN guest G ON S.id = G.share_id
-                                      WHERE (G.user_id = {userId} OR S.host_id = {userId}) 
-                                        AND G.status = 1 AND S.status = 1 AND
-                                            dbo.FullMonthsSeparation(S.time, getdate()) <= 6
-                                      GROUP BY MONTH(time), YEAR(time)) A
-                                  RIGHT JOIN months m ON A.month = M.month",
+                CommandText = $"get_user_monthly_activity {userId}",
                 Connection = con
             };
 

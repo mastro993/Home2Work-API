@@ -28,7 +28,7 @@ namespace data.Mappers
             var lastMessageId = @from["last_message_id"].ToLong();
             var lastMsgText = @from["last_message_text"].ToString();
             var lastMsgTime = DateTime.Parse(@from["last_message_time"].ToString());
-            var lastMsgRead = (bool)@from["last_message_read"];
+            var lastMsgNew = (bool)@from["last_message_new"];
 
 
             return new Chat()
@@ -51,7 +51,7 @@ namespace data.Mappers
                     },
                     Text = lastMsgText,
                     Time = lastMsgTime,
-                    Read = lastMsgRead
+                    New = lastMsgNew
                 },
                 UnreadCount = unreadCount
             };

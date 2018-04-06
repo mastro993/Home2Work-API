@@ -18,13 +18,7 @@ namespace data.Repositories
             var con = new SqlConnection(Config.ConnectionString);
             var cmd = new SqlCommand
             {
-                CommandText = $@"SELECT * FROM share s
-                                WHERE (s.host_id = {userId} AND s.status = 1)
-                                    OR (s.id IN 
-                                        (SELECT g.share_id FROM guest g 
-                                        WHERE g.user_id = {userId} AND g.status = 1)    
-                                    AND s.status = 1)
-                                ORDER BY s.time DESC",
+                CommandText = $"get_user_shares {userId}",
                 Connection = con
             };
 
@@ -61,7 +55,7 @@ namespace data.Repositories
 
             var cmd = new SqlCommand
             {
-                CommandText = $"SELECT * FROM share WHERE id = {id}",
+                CommandText = $"get_share {id}",
                 Connection = con
             };
 
@@ -119,7 +113,6 @@ namespace data.Repositories
                         var guests = GetShareGuests(share.Id);
                         share.Guests = guests;
                         return share;
-
                     }
                 }
             }
@@ -155,14 +148,12 @@ namespace data.Repositories
             }
         }
 
-        public Share Edit(Share share)
+        public bool SetShareStatus(long shareId, int status)
         {
             var con = new SqlConnection(Config.ConnectionString);
             var cmd = new SqlCommand
             {
-                CommandText = $@"UPDATE share SET 
-                                    status = {(int)share.Status}
-                                WHERE id = {share.Id}",
+                CommandText = $@"set_share_status {shareId}, {status}",
                 Connection = con
             };
 
@@ -180,7 +171,7 @@ namespace data.Repositories
                 con.Close();
             }
 
-            return rows > 0 ? share : null;
+            return rows > 0;
         }
 
         public bool Delete(long shareId)
@@ -213,8 +204,7 @@ namespace data.Repositories
             var con = new SqlConnection(Config.ConnectionString);
             var cmd = new SqlCommand
             {
-                CommandText = $@"SELECT * FROM guest 
-                                WHERE share_id = {shareId} AND user_id = {userId}",
+                CommandText = $@"get_share_guest {shareId}, {userId}",
                 Connection = con
             };
 
@@ -243,8 +233,8 @@ namespace data.Repositories
             var con = new SqlConnection(Config.ConnectionString);
             var cmd = new SqlCommand
             {
-                CommandText = $@"INSERT INTO guest (share_id, user_id, start_latitude, start_longitude) 
-                                VALUES ({guest.ShareId}, {guest.User.Id}, {guest.StartLat}, {guest.StartLng})",
+                CommandText =
+                    $@"insert_share_guest {guest.ShareId}, {guest.User.Id}, {guest.StartLat}, {guest.StartLng}",
                 Connection = con
             };
 
@@ -291,14 +281,12 @@ namespace data.Repositories
             return rows > 0 ? guest : null;
         }
 
-        public Guest Edit(Guest guest)
+        public bool SetGuestStatus(long shareId, long guestId, int status)
         {
             var con = new SqlConnection(Config.ConnectionString);
             var cmd = new SqlCommand
             {
-                CommandText = $@"UPDATE guest SET 
-                                    status = {(int)guest.Status}
-                                WHERE share_id = {guest.ShareId} AND user_id = {guest.User.Id}",
+                CommandText = $@"set_share_guest_status {shareId}, {guestId}, {status}",
                 Connection = con
             };
 
@@ -315,7 +303,7 @@ namespace data.Repositories
                 con.Close();
             }
 
-            return rows > 0 ? guest : null;
+            return rows > 0;
         }
 
         public List<Guest> GetShareGuests(long shareId)
@@ -323,7 +311,7 @@ namespace data.Repositories
             var con = new SqlConnection(Config.ConnectionString);
             var cmd = new SqlCommand
             {
-                CommandText = $@"SELECT * FROM guest WHERE share_id = {shareId}",
+                CommandText = $"get_share_guests {shareId}",
                 Connection = con
             };
 

@@ -20,7 +20,7 @@ namespace data.Mappers
             var messageId = @from["id"].ToLong();
             var messageText = @from["text"].ToString();
             var messageTime = DateTime.Parse(@from["time"].ToString());
-            var messageRead = (bool) @from["read"];
+            var messageNew = (bool) @from["new"];
 
             return new Message()
             {
@@ -33,7 +33,7 @@ namespace data.Mappers
                 },
                 Text = messageText,
                 Time = messageTime,
-                Read = messageRead
+                New = messageNew
             };
         }
     }

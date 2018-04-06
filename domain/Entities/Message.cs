@@ -9,6 +9,6 @@ namespace domain.Entities
         public Author Sender { get; set; }
         public string Text { get; set; }
         public DateTime Time { get; set; }
-        public bool Read { get; set; }
+        public bool New { get; set; }
     }
 }

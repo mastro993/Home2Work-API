@@ -9,12 +9,12 @@ namespace domain.Interfaces
         Share GetShare(long id);
         Share GetUserActiveShare(long userId);
         int Insert(Share share);
-        Share Edit(Share share);
+        bool SetShareStatus(long shareId, int status);
         bool Delete(long shareId);
         Guest GetGuestById(long shareId, long userId);
         void Insert(Guest guest);
         Guest Complete(Guest guest);
-        Guest Edit(Guest guest);
+        bool SetGuestStatus(long shareId, long guestId, int status);
         List<Guest> GetShareGuests(long shareId);
     }
 }

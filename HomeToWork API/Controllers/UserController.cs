@@ -19,7 +19,6 @@ namespace HomeToWork_API.Controllers
 {
     public class UserController : ApiController
     {
-
         private readonly IUserRepository _userRepo;
 
         public UserController()
@@ -31,18 +30,20 @@ namespace HomeToWork_API.Controllers
         [Route("api/user/register")]
         public IHttpActionResult Register(FormDataCollection data)
         {
-            var valueMap = FormDataConverter.Convert(data);
-            var email = valueMap.Get("email");
-            var password = valueMap.Get("password");
+            return NotFound();
 
-            var userId = _userRepo.Register(email, password);
+            //var valueMap = FormDataConverter.Convert(data);
+            //var email = valueMap.Get("email");
+            //var password = valueMap.Get("password");
 
-            if (userId != 0)
-            {
-                return Created(new Uri("api/user/" + userId), User);
-            }
+            //var userId = _userRepo.Register(email, password);
 
-            return InternalServerError();
+            //if (userId != 0)
+            //{
+            //    return Created(new Uri("api/user/" + userId), User);
+            //}
+
+           // return InternalServerError();
         }
 
 
@@ -62,7 +63,7 @@ namespace HomeToWork_API.Controllers
             var user = _userRepo.Login(email, password);
 
             if (user == null)
-                return Request.CreateResponse(HttpStatusCode.OK);
+                return Request.CreateResponse(HttpStatusCode.NotFound);
 
 
             // Dopo al login tramite email e password creo un nuovo access token
@@ -92,10 +93,13 @@ namespace HomeToWork_API.Controllers
         [Route("api/user")]
         public IHttpActionResult Put(User user)
         {
-            if (!Session.Authorized) return Unauthorized();
-            user = _userRepo.Edit(user);
 
-            return Ok(user);
+            return NotFound();
+
+            //if (!Session.Authorized) return Unauthorized();
+            //user = _userRepo.Edit(user);
+
+            //return Ok(user);
         }
 
         [HttpPost]

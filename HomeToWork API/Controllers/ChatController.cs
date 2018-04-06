@@ -41,7 +41,7 @@ namespace HomeToWork_API.Controllers
             if (!Session.Authorized)
                 return Unauthorized();
 
-            var messages = _chatRepo.GetMessagesByChatId(chatId);
+            var messages = _chatRepo.GetMessagesByChatId(Session.User.Id, chatId);
             _chatRepo.SetMessagesAsRead(Session.User.Id, chatId);
 
             return Ok(messages);

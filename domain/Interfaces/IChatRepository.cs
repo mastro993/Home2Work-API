@@ -5,7 +5,7 @@ namespace domain.Interfaces
 {
     public interface IChatRepository
     {
-        int InsertMessage(long userId, long chatId, string text);
+        long InsertMessage(long userId, long chatId, string text);
 
         Message getMessageById(long messageId);
 
@@ -19,6 +19,6 @@ namespace domain.Interfaces
 
         void SetMessagesAsRead(long userId, long chatId);
 
-        List<Message> GetMessagesByChatId(long chatId);
+        List<Message> GetMessagesByChatId(long usaerId, long chatId);
     }
 }

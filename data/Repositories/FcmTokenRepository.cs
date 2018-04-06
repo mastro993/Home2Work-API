@@ -11,7 +11,7 @@ namespace data.Repositories
             var con = new SqlConnection(Config.ConnectionString);
             var cmd = new SqlCommand
             {
-                CommandText = $@"SELECT token FROM fcm_token WHERE user_id = {userId}",
+                CommandText = $"get_user_fcm_token {userId}",
                 Connection = con
             };
 
@@ -38,8 +38,7 @@ namespace data.Repositories
             var con = new SqlConnection(Config.ConnectionString);
             var cmd = new SqlCommand
             {
-                CommandText = $@"INSERT INTO fcm_token (user_id, token) 
-                                    VALUES ({userId}, '{token}')",
+                CommandText = $"set_user_fcm_token {userId}, '{token}'",
                 Connection = con
             };
 
@@ -61,9 +60,7 @@ namespace data.Repositories
             var con = new SqlConnection(Config.ConnectionString);
             var cmd = new SqlCommand
             {
-                CommandText = $@"UPDATE fcm_token 
-                                 SET token = '{token}' 
-                                WHERE user_id = {userId}",
+                CommandText = $"update_user_fcm_token {userId}, '{token}'",
                 Connection = con
             };
 

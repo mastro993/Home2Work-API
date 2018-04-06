@@ -140,7 +140,7 @@ namespace HomeToWork_API.Controllers
                 if (shareGuest.Status == Guest.GuestStatus.Leaved)
                 {
                     shareGuest.Status = Guest.GuestStatus.Joined;
-                    _shareRepo.Edit(shareGuest);
+                    _shareRepo.SetGuestStatus(shareId, shareGuest.User.Id, (int) Guest.GuestStatus.Joined);
                 }
             }
             else
@@ -191,7 +191,7 @@ namespace HomeToWork_API.Controllers
             var shareGuest = guests.Find(guest => guest.User.Id == Session.User.Id);
 
             shareGuest.Status = Guest.GuestStatus.Leaved;
-            _shareRepo.Edit(shareGuest);
+            _shareRepo.SetGuestStatus(currentShare.Id, shareGuest.User.Id, (int)Guest.GuestStatus.Leaved);
 
             var host = currentShare.Host;
 
@@ -277,7 +277,7 @@ namespace HomeToWork_API.Controllers
                 return BadRequest();
 
             share.Status = ShareStatus.Completed;
-            _shareRepo.Edit(share);
+            _shareRepo.SetShareStatus(share.Id, (int)ShareStatus.Completed);
 
             var totalDistance = 0;
 
@@ -312,7 +312,7 @@ namespace HomeToWork_API.Controllers
                 return NotFound();
 
             share.Status = ShareStatus.Canceled;
-            _shareRepo.Edit(share);
+            _shareRepo.SetShareStatus(share.Id, (int)ShareStatus.Canceled);
 
             var guests = _shareRepo.GetShareGuests(share.Id);
 
@@ -357,7 +357,8 @@ namespace HomeToWork_API.Controllers
                 return NotFound();
 
             shareGuest.Status = Guest.GuestStatus.Leaved;
-            _shareRepo.Edit(shareGuest);
+        
+            _shareRepo.SetGuestStatus(share.Id, shareGuest.User.Id, (int)Guest.GuestStatus.Leaved);
 
             var msgData = new Dictionary<string, string>
             {
