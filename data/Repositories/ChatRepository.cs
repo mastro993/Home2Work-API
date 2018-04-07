@@ -215,12 +215,12 @@ namespace data.Repositories
                 Connection = con
             };
 
-            con.Open();
 
             var messages = new List<Message>();
 
             try
             {
+                con.Open();
                 using (var reader = cmd.ExecuteReader())
                 {
                     while (reader.Read())

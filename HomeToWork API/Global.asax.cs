@@ -14,8 +14,9 @@ namespace HomeToWork_API
     {
         protected void Application_Start()
         {
-
+            
             Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("it-IT");
+            Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo("it-IT");
 
             AreaRegistration.RegisterAllAreas();
             GlobalConfiguration.Configure(WebApiConfig.Register);

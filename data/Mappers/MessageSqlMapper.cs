@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data.SqlClient;
+using System.Globalization;
 using data.Common;
 using data.Common.Utils;
 using data.Repositories;
@@ -16,15 +17,18 @@ namespace data.Mappers
         {
             var senderId = @from["sender_id"].ToLong();
             var sender = _userRepo.GetById(senderId);
-
             var messageId = @from["id"].ToLong();
+            var chatId = @from["chat_id"].ToLong();
             var messageText = @from["text"].ToString();
-            var messageTime = DateTime.Parse(@from["time"].ToString());
+            var messageTime = LocalDateTime.Parse(@from["time"].ToString());
+
+
             var messageNew = (bool) @from["new"];
 
             return new Message()
             {
                 Id = messageId,
+                ChatId = chatId,
                 Sender = new Author()
                 {
                     Id = sender.Id,

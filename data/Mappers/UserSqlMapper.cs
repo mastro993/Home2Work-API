@@ -26,7 +26,7 @@ namespace data.Mappers
             var city = @from["city"].ToString();
             var cap = @from["cap"].ToString();
             var district = @from["district"].ToString();
-            var regdate = DateTime.Parse(@from["regdate"].ToString());
+            var regdate = LocalDateTime.Parse(@from["regdate"].ToString());
             //var accessToken = @from["access_token"].ToString();
 
             var company = _companyRepo.GetById(companyId);

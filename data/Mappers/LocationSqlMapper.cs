@@ -14,7 +14,7 @@ namespace data.Mappers
             var locationId = @from["id"].ToLong();
             var lat = @from["latitude"].ToDouble();
             var lng =@from["longitude"].ToDouble();
-            var locationTime = DateTime.Parse(@from["time"].ToString());
+            var locationTime = LocalDateTime.Parse(@from["time"].ToString());
 
             return new Location()
             {

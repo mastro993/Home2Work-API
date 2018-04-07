@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Web.Http;
 using System.Web.WebPages;
+using data.Common.Utils;
 using data.Repositories;
 using domain.Entities;
 using domain.Interfaces;
@@ -67,7 +68,7 @@ namespace HomeToWork_API.Controllers
             {
                 {"TYPE", "NEW_MESSAGE"},
                 {"CHAT_ID", chatId.ToString()},
-                {"TEXT", text}
+                {"MESSAGE_ID", messageId.ToString()}
             };
             var recipientId = chat.User.Id;
             FirebaseCloudMessanger.SendMessage(
@@ -78,6 +79,23 @@ namespace HomeToWork_API.Controllers
 
 
             var message = _chatRepo.getMessageById(messageId);
+
+            return Ok(message);
+        }
+
+
+        [HttpGet]
+        [Route("api/message/{messageId:long}")]
+        public IHttpActionResult GetMessage(long messageId)
+        {
+            if (!Session.Authorized) return Unauthorized();
+
+            var message = _chatRepo.getMessageById(messageId);
+
+            var chat = _chatRepo.GetByChatId(Session.User.Id, message.ChatId);
+
+            if (chat == null)
+                return NotFound();
 
             return Ok(message);
         }

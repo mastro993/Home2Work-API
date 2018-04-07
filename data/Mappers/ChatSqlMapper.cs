@@ -27,7 +27,12 @@ namespace data.Mappers
 
             var lastMessageId = @from["last_message_id"].ToLong();
             var lastMsgText = @from["last_message_text"].ToString();
-            var lastMsgTime = DateTime.Parse(@from["last_message_time"].ToString());
+
+
+            var lastMsgTime = LocalDateTime.Parse(@from["last_message_time"].ToString());
+
+
+
             var lastMsgNew = (bool)@from["last_message_new"];
 
 

@@ -19,7 +19,7 @@ namespace data.Mappers
             var shareId = @from["id"].ToLong();
             var hostId = @from["host_id"].ToLong();
             var status = @from["status"].ToInt();
-            var time = DateTime.Parse(@from["time"].ToString());
+            var time = LocalDateTime.Parse(@from["time"].ToString());
 
             return new Share()
             {
