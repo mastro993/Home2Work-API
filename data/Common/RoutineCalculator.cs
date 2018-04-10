@@ -32,7 +32,7 @@ namespace data.Common
         //            continue;
         //        }
 
-        //        var timeDeltaMinutes = (route.Last.Timestamp - location.Timestamp).TotalMinutes;
+        //        var timeDeltaMinutes = (route.Last.Date - location.Date).TotalMinutes;
         //        if (Math.Abs(timeDeltaMinutes) > 30.0)
         //        {
         //            routes.Add(route);

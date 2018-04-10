@@ -14,7 +14,6 @@ namespace domain.Interfaces
         UserExp GetUserExp(long userId);
         bool AddExpToUser(long userId, long exp);
         UserStats GetUserStats(long userId);
-
         Dictionary<int, SharingActivity> GetUserMonthlyActivity(long userId);
     }
 }

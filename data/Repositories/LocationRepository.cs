@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Globalization;
 using data.Common;
 using data.Database;
 using data.Mappers;
@@ -10,7 +11,7 @@ using domain.Interfaces;
 
 namespace data.Repositories
 {
-    public class LocationRepository: ILocationRespository
+    public class LocationRepository : ILocationRespository
     {
         private readonly Mapper<SqlDataReader, Location> _mapper = new LocationSqlMapper();
 
@@ -108,15 +109,15 @@ namespace data.Repositories
             //if (!isLocationRelevant(userId,location)) return 0;
 
             var con = new SqlConnection(Config.ConnectionString);
+
+            var format = "yyyy-mm-dd'T'hh:mm:ss";
+
             var cmd = new SqlCommand
             {
-                CommandText = $@"INSERT INTO location (user_id, latitude, longitude, time)
-                                OUTPUT Inserted.Id
-                                VALUES ({userId}, '{location.Latitude}', '{location.Longitude}', @Time)",
+                CommandText =
+                    $"insert_user_location {userId}, {location.Latitude.ToString().Replace(",", ".")}, {location.Longitude.ToString().Replace(",", ".")}, '{location.Date.ToString(format)}'",
                 Connection = con
             };
-
-            cmd.Parameters.Add("@Time", SqlDbType.DateTime).Value = location.Timestamp;
 
             try
             {
@@ -133,9 +134,9 @@ namespace data.Repositories
         //{
         //    foreach (var loc in GetAllUserLocations(userId, false))
         //    {
-        //        var sameDay = (loc.Timestamp.DayOfWeek == location.Timestamp.DayOfWeek);
+        //        var sameDay = (loc.Date.DayOfWeek == location.Date.DayOfWeek);
         //        if (!sameDay) return true;
-        //        var sameTime = (Math.Abs(loc.Timestamp.TimeOfDay.Subtract(loc.Timestamp.TimeOfDay).TotalMinutes) < 10);
+        //        var sameTime = (Math.Abs(loc.Date.TimeOfDay.Subtract(loc.Date.TimeOfDay).TotalMinutes) < 10);
         //        if (!sameTime) return true;
         //        var fromCoord = location.LatLng.ToGeoCoordinate();
         //        var toCoord = loc.LatLng.ToGeoCoordinate();

@@ -12,6 +12,7 @@ namespace data.Mappers
         public override Location MapFrom(SqlDataReader @from)
         {
             var locationId = @from["id"].ToLong();
+            var userId = @from["user_id"].ToLong();
             var lat = @from["latitude"].ToDouble();
             var lng =@from["longitude"].ToDouble();
             var locationTime = LocalDateTime.Parse(@from["time"].ToString());
@@ -19,9 +20,10 @@ namespace data.Mappers
             return new Location()
             {
                 LocationId = locationId,
+                UserId = userId,
                 Latitude = lat,
                 Longitude = lng,
-                Timestamp = locationTime
+                Date = locationTime
             };
         }
     }

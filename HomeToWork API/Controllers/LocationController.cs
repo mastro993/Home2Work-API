@@ -27,20 +27,13 @@ namespace HomeToWork_API.Controllers
             if (!Session.Authorized) return Unauthorized();
 
             var locationList = locations.ToList();
-            try
+
+            foreach (var location in locationList)
             {
-                foreach (var location in locationList)
-                {
-                    location.LocationId = _locationRepo.InsertUserLocation(Session.User.Id, location);
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                return InternalServerError();
+                location.LocationId = _locationRepo.InsertUserLocation(Session.User.Id, location);
             }
 
-            return Ok(locationList);
+            return Ok(true);
         }
 
         [HttpGet]

@@ -76,7 +76,7 @@ namespace HomeToWork_API.Controllers
         [Route("api/user")]
         public IHttpActionResult Get()
         {
-            if (Session.Authorized) return Unauthorized();
+            if (!Session.Authorized) return Unauthorized();
 
             return Ok(Session.User);
         }
