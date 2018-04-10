@@ -9,6 +9,7 @@ namespace domain.Entities
         public long Amount { get; set; }
         public double CurrentLvLExp { get; set; }
         public double NextLvlExp { get; set; }
+        public int MonthExp { get; set; }
 
         private const double Threshold = 50.0;
 

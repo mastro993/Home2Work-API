@@ -36,16 +36,6 @@ namespace HomeToWork_API.Controllers
 
             var shares = _shareRepo.GetUserShares(Session.User.Id);
 
-            foreach (var share in shares)
-            {
-                var distance = 0;
-                distance = share.Type == ShareType.Driver
-                    ? share.Guests.Sum(guest => guest.Distance)
-                    : share.Guests.FindLast(guest => guest.User.Id == Session.User.Id).Distance;
-
-                share.SharedDistance = distance;
-            }
-
             return Ok(shares);
         }
 
@@ -55,17 +45,10 @@ namespace HomeToWork_API.Controllers
         {
             if (!Session.Authorized) return Unauthorized();
 
-            var share = _shareRepo.GetShare(id);
+            var share = _shareRepo.GetUserShare(Session.User.Id, id);
 
             if (share == null)
                 return NotFound();
-
-            var distance = 0;
-            distance = share.Type == ShareType.Driver
-                ? share.Guests.Sum(guest => guest.Distance)
-                : share.Guests.FindLast(guest => guest.User.Id == Session.User.Id).Distance;
-
-            share.SharedDistance = distance;
 
             return Ok(share);
         }
@@ -79,9 +62,7 @@ namespace HomeToWork_API.Controllers
             var ongoingShare = _shareRepo.GetUserActiveShare(Session.User.Id);
 
             if (ongoingShare == null)
-                return Ok();
-
-            ongoingShare.Type = ongoingShare.Host.Id == Session.User.Id ? ShareType.Driver : ShareType.Guest;
+                return NotFound();
 
             return Ok(ongoingShare);
         }
@@ -99,23 +80,22 @@ namespace HomeToWork_API.Controllers
 
         [HttpPost]
         [Route("api/share/new")]
-        public IHttpActionResult PostNewShare()
+        public IHttpActionResult PostNewShare(FormDataCollection data)
         {
             if (!Session.Authorized) return Unauthorized();
+
+            var valueMap = FormDataConverter.Convert(data);
+            var startLat = double.Parse(valueMap.Get("startLat"));
+            var startLng = double.Parse(valueMap.Get("startLng"));
 
             var share = _shareRepo.GetUserActiveShare(Session.User.Id);
 
             if (share != null && share.Host.Id == Session.User.Id)
                 return Ok(share);
 
-            share = new Share
-            {
-                Host = new User {Id = Session.User.Id},
-                Time = new DateTime()
-            };
+            var shareId = _shareRepo.CreateShare(Session.User.Id, startLat, startLng);
 
-            share.Id = _shareRepo.Insert(share);
-            share = _shareRepo.GetShare(share.Id);
+            share = _shareRepo.GetUserShare(Session.User.Id, shareId);
 
             return Ok(share);
         }
@@ -130,46 +110,38 @@ namespace HomeToWork_API.Controllers
             var joinLat = double.Parse(valueMap.Get("joinLat"));
             var joinLng = double.Parse(valueMap.Get("joinLng"));
 
-            var share = _shareRepo.GetShare(shareId);
+            var share = _shareRepo.GetUserShare(Session.User.Id, shareId);
             if (share == null)
                 return NotFound();
 
-            var shareGuest = _shareRepo.GetGuestById(shareId, Session.User.Id);
+            var shareGuest = _shareRepo.GetGuest(shareId, Session.User.Id);
             if (shareGuest != null)
             {
                 if (shareGuest.Status == Guest.GuestStatus.Leaved)
                 {
                     shareGuest.Status = Guest.GuestStatus.Joined;
-                    _shareRepo.SetGuestStatus(shareId, shareGuest.User.Id, (int) Guest.GuestStatus.Joined);
+                    _shareRepo.JoinShare(shareId, shareGuest.User.Id, joinLat, joinLng);
                 }
             }
             else
             {
-                shareGuest = new Guest()
-                {
-                    ShareId = shareId,
-                    User = new User {Id = Session.User.Id},
-                    StartLat = joinLat,
-                    StartLng = joinLng
-                };
-
-                _shareRepo.Insert(shareGuest);
+                _shareRepo.JoinShare(shareId, Session.User.Id, joinLat, joinLng);
             }
-
-
-            var host = share.Host;
 
             var msgData = new Dictionary<string, string>
             {
                 {"TYPE", "SHARE_JOIN"}
             };
+
+#pragma warning disable 4014
             FirebaseCloudMessanger.SendMessage(
-                host.Id,
+                share.Host.Id,
                 "Nuovo ospite", Session.User + " si è unito alla condivisione in corso",
                 msgData,
                 "it.gruppoinfor.hometowork.SHARE_JOIN");
+#pragma warning restore 4014
 
-            share.Type = ShareType.Guest;
+            share = _shareRepo.GetUserShare(Session.User.Id, shareId);
 
             return Ok(share);
         }
@@ -178,32 +150,33 @@ namespace HomeToWork_API.Controllers
         [Route("api/share/leave")]
         public IHttpActionResult PostLeaveShare()
         {
-            if (!Session.Authorized)
-                return Unauthorized();
+            if (!Session.Authorized) return Unauthorized();
 
-            var currentShare = _shareRepo.GetUserActiveShare(Session.User.Id);
+            var share = _shareRepo.GetUserActiveShare(Session.User.Id);
 
-            if (currentShare == null)
-                return Ok(false);
+            if (share == null)
+                return NotFound();
 
-            var guests = _shareRepo.GetShareGuests(currentShare.Id);
+            var shareGuest = _shareRepo.GetGuest(share.Id, Session.User.Id);
 
-            var shareGuest = guests.Find(guest => guest.User.Id == Session.User.Id);
+            if (shareGuest == null)
+                return NotFound();
 
-            shareGuest.Status = Guest.GuestStatus.Leaved;
-            _shareRepo.SetGuestStatus(currentShare.Id, shareGuest.User.Id, (int)Guest.GuestStatus.Leaved);
+            var leaved = _shareRepo.LeaveShare(share.Id, shareGuest.User.Id);
 
-            var host = currentShare.Host;
+            if (!leaved) return Ok(false);
 
             var msgData = new Dictionary<string, string>
             {
                 {"TYPE", "SHARE_LEAVED"}
             };
+#pragma warning disable 4014
             FirebaseCloudMessanger.SendMessage(
-                host.Id,
+                share.Host.Id,
                 "Condivisione abbandonata", Session.User + " ha abbandonato la condivisione in corso",
                 msgData,
                 "it.gruppoinfor.hometowork.SHARE_LEAVED");
+#pragma warning restore 4014
 
             return Ok(true);
         }
@@ -214,33 +187,29 @@ namespace HomeToWork_API.Controllers
         {
             if (!Session.Authorized) return Unauthorized();
 
+            var currentShare = _shareRepo.GetUserActiveShare(Session.User.Id);
+
+            if (currentShare == null)
+                return NotFound();
+
             var valueMap = FormDataConverter.Convert(data);
             var completeLat = double.Parse(valueMap.Get("completeLat"));
             var completeLng = double.Parse(valueMap.Get("completeLng"));
 
-            var currentShare = _shareRepo.GetUserActiveShare(Session.User.Id);
+            var guest = _shareRepo.GetGuest(currentShare.Id, Session.User.Id);
 
-            if (currentShare == null)
-                return Ok(false);
-
-            var guests = _shareRepo.GetShareGuests(currentShare.Id);
-
-            var shareGuest = guests.Find(guest => guest.User.Id == Session.User.Id);
-
-            if (shareGuest == null)
-                return Ok(false);
+            if (guest == null)
+                return NotFound();
 
             var request = new DirectionsRequest()
             {
-                Origin = new GoogleApi.Entities.Common.Location(shareGuest.StartLat, shareGuest.StartLng),
+                Origin = new GoogleApi.Entities.Common.Location(guest.StartLat, guest.StartLng),
                 Destination = new GoogleApi.Entities.Common.Location(completeLat, completeLng)
             };
             var result = GoogleMaps.Directions.Query(request);
+            var distance = result.Routes.First().Legs.First().Distance.Value;
 
-            shareGuest.EndLat = completeLat;
-            shareGuest.EndLng = completeLng;
-            shareGuest.Distance = result.Routes.First().Legs.First().Distance.Value;
-            _shareRepo.Complete(shareGuest);
+            _shareRepo.CompleteShare(currentShare.Id, Session.User.Id, completeLat, completeLng, distance);
 
             var host = currentShare.Host;
 
@@ -248,25 +217,32 @@ namespace HomeToWork_API.Controllers
             {
                 {"TYPE", "SHARE_COMPLETED"}
             };
+#pragma warning disable 4014
             FirebaseCloudMessanger.SendMessage(
                 host.Id,
                 "Condivisione completata",
-                Session.User + " ha completato la condivisione percorrendo " + shareGuest.Distance / 1000.0 + " Km",
+                Session.User + " ha completato la condivisione percorrendo " + distance / 1000.0 + " Km",
                 msgData,
                 "it.gruppoinfor.hometowork.SHARE_COMPLETED");
+#pragma warning restore 4014
 
-            _userRepo.AddExpToUser(shareGuest.User.Id, shareGuest.Distance / 10);
+            _userRepo.AddExpToUser(guest.User.Id, guest.Distance / 100);
 
-            return Ok(true);
+            var completedShare = _shareRepo.GetGuest(currentShare.Id, Session.User.Id);
+
+            return Ok(completedShare);
         }
-
 
         [HttpPost]
         [Route("api/share/finish")]
-        public IHttpActionResult PostFinishShare()
+        public IHttpActionResult PostFinishShare(FormDataCollection data)
         {
             if (!Session.Authorized)
                 return Unauthorized();
+
+            var valueMap = FormDataConverter.Convert(data);
+            var finishLat = double.Parse(valueMap.Get("finishLat"));
+            var finishLng = double.Parse(valueMap.Get("finishLng"));
 
             var share = _shareRepo.GetUserActiveShare(Session.User.Id);
 
@@ -276,8 +252,16 @@ namespace HomeToWork_API.Controllers
             if (share.Host.Id != Session.User.Id)
                 return BadRequest();
 
-            share.Status = ShareStatus.Completed;
-            _shareRepo.SetShareStatus(share.Id, (int)ShareStatus.Completed);
+
+            var request = new DirectionsRequest()
+            {
+                Origin = new GoogleApi.Entities.Common.Location(share.StartLat, share.StartLng),
+                Destination = new GoogleApi.Entities.Common.Location(finishLat, finishLng)
+            };
+            var result = GoogleMaps.Directions.Query(request);
+            var distance = result.Routes.First().Legs.First().Distance.Value;
+
+            _shareRepo.FinishShare(share.Id, finishLat, finishLng, distance);
 
             var totalDistance = 0;
 
@@ -288,9 +272,9 @@ namespace HomeToWork_API.Controllers
                 totalDistance += guest.Distance;
             }
 
-            _userRepo.AddExpToUser(share.Host.Id, totalDistance / 10);
+            _userRepo.AddExpToUser(share.Host.Id, totalDistance / 100);
 
-            return Ok(true);
+            return Ok(share);
         }
 
         [HttpDelete]
@@ -311,11 +295,9 @@ namespace HomeToWork_API.Controllers
             if (share.Status == ShareStatus.Canceled)
                 return NotFound();
 
-            share.Status = ShareStatus.Canceled;
-            _shareRepo.SetShareStatus(share.Id, (int)ShareStatus.Canceled);
+            _shareRepo.CancelShare(share.Id);
 
             var guests = _shareRepo.GetShareGuests(share.Id);
-
 
             guests.ForEach(guest =>
             {
@@ -323,11 +305,13 @@ namespace HomeToWork_API.Controllers
                 {
                     {"TYPE", "SHARE_CANCELED"}
                 };
+#pragma warning disable 4014
                 FirebaseCloudMessanger.SendMessage(
                     guest.User.Id,
                     "Condivisione annullata", Session.User + " ha annullato la condivisione in corso",
                     msgData,
                     "it.gruppoinfor.hometowork.SHARE_CANCELED");
+#pragma warning restore 4014
             });
 
 
@@ -348,7 +332,7 @@ namespace HomeToWork_API.Controllers
             if (share.Host.Id != Session.User.Id)
                 return NotFound();
 
-            var shareGuest = _shareRepo.GetGuestById(share.Id, guestId);
+            var shareGuest = _shareRepo.GetGuest(share.Id, guestId);
 
             if (shareGuest == null)
                 return NotFound();
@@ -357,18 +341,20 @@ namespace HomeToWork_API.Controllers
                 return NotFound();
 
             shareGuest.Status = Guest.GuestStatus.Leaved;
-        
-            _shareRepo.SetGuestStatus(share.Id, shareGuest.User.Id, (int)Guest.GuestStatus.Leaved);
+
+            _shareRepo.LeaveShare(share.Id, shareGuest.User.Id);
 
             var msgData = new Dictionary<string, string>
             {
                 {"TYPE", "SHARE_BAN"}
             };
+#pragma warning disable 4014
             FirebaseCloudMessanger.SendMessage(
                 guestId,
                 "Sei stato espulso", Session.User + " ti ha espulso dalla condivisione in corso",
                 msgData,
                 "it.gruppoinfor.hometowork.SHARE_BAN");
+#pragma warning restore 4014
 
             return Ok(true);
         }

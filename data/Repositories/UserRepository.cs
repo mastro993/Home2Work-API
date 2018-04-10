@@ -208,12 +208,35 @@ namespace data.Repositories
 
         public UserExp GetUserExp(long userId)
         {
-            // TODO exp utente
+            var con = new SqlConnection(Config.ConnectionString);
 
-            var random = new Random().Next(1, 250000);
-            var amount = (int) Math.Round(random / 10.0) * 10;
+            var cmd = new SqlCommand
+            {
+                CommandText = $"get_user_exp {userId}",
+                Connection = con
+            };
 
-            return new UserExp(amount);
+            con.Open();
+
+            try
+            {
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        var amount = reader["total_exp"].ToInt();
+                        var monthAmount = reader["month_exp"].ToInt();
+                        var exp = new UserExp(amount) {MonthExp = monthAmount};
+                        return exp;
+                    }
+                }
+
+                return null;
+            }
+            finally
+            {
+                con.Close();
+            }
         }
 
         public bool AddExpToUser(long userId, long exp)

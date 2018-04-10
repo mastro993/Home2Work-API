@@ -65,13 +65,6 @@ namespace HomeToWork_API.Controllers
             if (user == null)
                 return Request.CreateResponse(HttpStatusCode.NotFound);
 
-
-            // Dopo al login tramite email e password creo un nuovo access token
-            //var accessToken = _userRepo.NewAccessToken(user.Id);
-            //user.AccessToken = accessToken;
-
-            // Una volta autenticato l'utente creo un token per la sessione
-            // e lo restituisco nell'header della risposta
             var sessionToken = _userRepo.NewSessionToken(user.Id);
 
             var response = Request.CreateResponse(HttpStatusCode.OK, user);
@@ -83,8 +76,7 @@ namespace HomeToWork_API.Controllers
         [Route("api/user")]
         public IHttpActionResult Get()
         {
-            if (!Session.Authorized)
-                return Ok();
+            if (Session.Authorized) return Unauthorized();
 
             return Ok(Session.User);
         }
@@ -171,20 +163,14 @@ namespace HomeToWork_API.Controllers
             if (token.IsNullOrWhiteSpace())
             {
                 var inserted = fcmTokenDao.SetUserToken(Session.User.Id, newToken);
-                if (inserted) return Ok();
-            }
-            else if (!token.Equals(newToken))
-            {
-                var updated = fcmTokenDao.UpdateUserToken(Session.User.Id, newToken);
-                if (updated) return Ok();
-            }
-            else
-            {
-                return Ok();
+                return Ok(inserted);
             }
 
+            if (token.Equals(newToken)) return Ok(true);
 
-            return InternalServerError();
+            var updated = fcmTokenDao.UpdateUserToken(Session.User.Id, newToken);
+            return Ok(updated);
+
         }
 
         [HttpGet]

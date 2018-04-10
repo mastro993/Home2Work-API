@@ -49,13 +49,13 @@ namespace data.Repositories
             return shares;
         }
 
-        public Share GetShare(long id)
+        public Share GetUserShare(long userId, long shareId)
         {
             var con = new SqlConnection(Config.ConnectionString);
 
             var cmd = new SqlCommand
             {
-                CommandText = $"get_share {id}",
+                CommandText = $"get_share {shareId}",
                 Connection = con
             };
 
@@ -71,6 +71,7 @@ namespace data.Repositories
                         var share = _shareMapper.MapFrom(reader);
                         var guests = GetShareGuests(share.Id);
                         share.Guests = guests;
+                        share.Type = share.Host.Id == userId ? ShareType.Driver : ShareType.Guest;
                         return share;
                     }
                 }
@@ -89,14 +90,7 @@ namespace data.Repositories
 
             var cmd = new SqlCommand
             {
-                CommandText = $@"SELECT *
-                                 FROM share s
-                                 WHERE (s.host_id = {userId}
-                                 OR s.id IN (
-                                    SELECT g.share_id
-                                    FROM guest g
-                                    WHERE g.user_id = {userId} AND g.status = {(int) ShareStatus.Created})
-                                 ) AND s.status = {(int) ShareStatus.Created}",
+                CommandText = $@"get_user_active_share {userId}",
                 Connection = con
             };
 
@@ -112,6 +106,7 @@ namespace data.Repositories
                         var share = _shareMapper.MapFrom(reader);
                         var guests = GetShareGuests(share.Id);
                         share.Guests = guests;
+                        share.Type = share.Host.Id == userId ? ShareType.Driver : ShareType.Guest;
                         return share;
                     }
                 }
@@ -124,14 +119,12 @@ namespace data.Repositories
             return null;
         }
 
-        public int Insert(Share share)
+        public long CreateShare(long hostId, double latitude, double longitude)
         {
             var con = new SqlConnection(Config.ConnectionString);
             var cmd = new SqlCommand
             {
-                CommandText = $@"INSERT INTO share (host_id) 
-                                OUTPUT Inserted.Id
-                                VALUES ({share.Host.Id})",
+                CommandText = $@"create_share {hostId}, '{latitude.ToString().Replace(",",".")}', '{longitude.ToString().Replace(",", ".")}'",
                 Connection = con
             };
 
@@ -148,12 +141,38 @@ namespace data.Repositories
             }
         }
 
-        public bool SetShareStatus(long shareId, int status)
+        public bool FinishShare(long shareId, double latitude, double longitude, int distance)
         {
             var con = new SqlConnection(Config.ConnectionString);
             var cmd = new SqlCommand
             {
-                CommandText = $@"set_share_status {shareId}, {status}",
+                CommandText = $@"finish_share {shareId}, '{latitude.ToString().Replace(",", ".")}', '{longitude.ToString().Replace(",", ".")}', {distance}",
+                Connection = con
+            };
+
+
+            con.Open();
+
+            int rows;
+
+            try
+            {
+                rows = cmd.ExecuteNonQuery();
+            }
+            finally
+            {
+                con.Close();
+            }
+
+            return rows > 0;
+        }
+
+        public bool CancelShare(long shareId)
+        {
+            var con = new SqlConnection(Config.ConnectionString);
+            var cmd = new SqlCommand
+            {
+                CommandText = $@"cancel_share {shareId}",
                 Connection = con
             };
 
@@ -199,7 +218,7 @@ namespace data.Repositories
             return rows > 0;
         }
 
-        public Guest GetGuestById(long shareId, long userId)
+        public Guest GetGuest(long shareId, long userId)
         {
             var con = new SqlConnection(Config.ConnectionString);
             var cmd = new SqlCommand
@@ -228,13 +247,13 @@ namespace data.Repositories
             return null;
         }
 
-        public void Insert(Guest guest)
+        public bool JoinShare(long shareId, long guestId, double latitude, double longitude)
         {
             var con = new SqlConnection(Config.ConnectionString);
             var cmd = new SqlCommand
             {
                 CommandText =
-                    $@"insert_share_guest {guest.ShareId}, {guest.User.Id}, {guest.StartLat}, {guest.StartLng}",
+                    $@"insert_share_guest {shareId}, {guestId}, '{latitude.ToString().Replace(",", ".")}', '{longitude.ToString().Replace(",", ".")}'",
                 Connection = con
             };
 
@@ -242,7 +261,7 @@ namespace data.Repositories
 
             try
             {
-                cmd.ExecuteNonQuery();
+                return cmd.ExecuteNonQuery() > 0;
             }
             finally
             {
@@ -250,17 +269,12 @@ namespace data.Repositories
             }
         }
 
-        public Guest Complete(Guest guest)
+        public bool CompleteShare(long shareId, long userId, double latitude, double longitude, int distance)
         {
             var con = new SqlConnection(Config.ConnectionString);
             var cmd = new SqlCommand
             {
-                CommandText = $@"UPDATE guest SET 
-                                    end_latitude = {guest.EndLat},
-                                    end_longitude = {guest.EndLng},
-                                    status = 1,
-                                    distance = {guest.Distance}
-                                WHERE share_id = {guest.ShareId} AND user_id = {guest.User.Id}",
+                CommandText = $@"complete_share {shareId}, {userId}, '{latitude.ToString().Replace(",", ".")}', '{longitude.ToString().Replace(",", ".")}', {distance}",
                 Connection = con
             };
 
@@ -278,15 +292,15 @@ namespace data.Repositories
                 con.Close();
             }
 
-            return rows > 0 ? guest : null;
+            return rows > 0;
         }
 
-        public bool SetGuestStatus(long shareId, long guestId, int status)
+        public bool LeaveShare(long shareId, long guestId)
         {
             var con = new SqlConnection(Config.ConnectionString);
             var cmd = new SqlCommand
             {
-                CommandText = $@"set_share_guest_status {shareId}, {guestId}, {status}",
+                CommandText = $@"leave_share {shareId}, {guestId}",
                 Connection = con
             };
 

@@ -6,15 +6,16 @@ namespace domain.Interfaces
     public interface IShareRepository
     {
         List<Share> GetUserShares(long userId);
-        Share GetShare(long id);
+        Share GetUserShare(long userId, long shareId);
         Share GetUserActiveShare(long userId);
-        int Insert(Share share);
-        bool SetShareStatus(long shareId, int status);
+        long CreateShare(long hostId, double latidue, double longitude);
+        bool JoinShare(long shareId, long guestId, double latitude, double longitude);
+        bool FinishShare(long shareId, double latidue, double longitude, int distance);
+        bool CompleteShare(long shareId, long userId, double latitude, double longitude, int distance);
+        bool CancelShare(long shareId);
+        bool LeaveShare(long shareId, long guestId);
         bool Delete(long shareId);
-        Guest GetGuestById(long shareId, long userId);
-        void Insert(Guest guest);
-        Guest Complete(Guest guest);
-        bool SetGuestStatus(long shareId, long guestId, int status);
+        Guest GetGuest(long shareId, long userId);
         List<Guest> GetShareGuests(long shareId);
     }
 }
