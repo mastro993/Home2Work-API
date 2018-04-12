@@ -12,10 +12,10 @@ namespace domain.Entities
         public double StartLng { get; set; }
         public double? EndLat { get; set; }
         public double? EndLng { get; set; }
-        public GuestStatus Status { get; set; }
+        public Status CurrentStatus { get; set; }
         public int Distance { get; set; }
 
-        public enum GuestStatus
+        public enum Status
         {
             Joined, Completed, Leaved
         }

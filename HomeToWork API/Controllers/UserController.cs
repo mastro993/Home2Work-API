@@ -43,7 +43,7 @@ namespace HomeToWork_API.Controllers
             //    return Created(new Uri("api/user/" + userId), User);
             //}
 
-           // return InternalServerError();
+            // return InternalServerError();
         }
 
 
@@ -85,7 +85,6 @@ namespace HomeToWork_API.Controllers
         [Route("api/user")]
         public IHttpActionResult Put(User user)
         {
-
             return NotFound();
 
             //if (!Session.Authorized) return Unauthorized();
@@ -170,7 +169,6 @@ namespace HomeToWork_API.Controllers
 
             var updated = fcmTokenDao.UpdateUserToken(Session.User.Id, newToken);
             return Ok(updated);
-
         }
 
         [HttpGet]

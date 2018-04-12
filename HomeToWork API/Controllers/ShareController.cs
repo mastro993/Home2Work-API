@@ -117,9 +117,9 @@ namespace HomeToWork_API.Controllers
             var shareGuest = _shareRepo.GetGuest(shareId, Session.User.Id);
             if (shareGuest != null)
             {
-                if (shareGuest.Status == Guest.GuestStatus.Leaved)
+                if (shareGuest.CurrentStatus == Guest.Status.Leaved)
                 {
-                    shareGuest.Status = Guest.GuestStatus.Joined;
+                    shareGuest.CurrentStatus = Guest.Status.Joined;
                     _shareRepo.JoinShare(shareId, shareGuest.User.Id, joinLat, joinLng);
                 }
             }
@@ -292,7 +292,7 @@ namespace HomeToWork_API.Controllers
             if (share.Host.Id != Session.User.Id)
                 return NotFound();
 
-            if (share.Status == ShareStatus.Canceled)
+            if (share.Status == Status.Canceled)
                 return NotFound();
 
             _shareRepo.CancelShare(share.Id);
@@ -337,10 +337,10 @@ namespace HomeToWork_API.Controllers
             if (shareGuest == null)
                 return NotFound();
 
-            if (shareGuest.Status == Guest.GuestStatus.Leaved)
+            if (shareGuest.CurrentStatus == Guest.Status.Leaved)
                 return NotFound();
 
-            shareGuest.Status = Guest.GuestStatus.Leaved;
+            shareGuest.CurrentStatus = Guest.Status.Leaved;
 
             _shareRepo.LeaveShare(share.Id, shareGuest.User.Id);
 

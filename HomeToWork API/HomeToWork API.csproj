@@ -289,7 +289,7 @@
     <Compile Include="Controllers\CompanyController.cs" />
     <Compile Include="Controllers\LocationController.cs" />
     <Compile Include="Controllers\MatchController.cs" />
-    <Compile Include="Controllers\RanksController.cs" />
+    <Compile Include="Controllers\LeaderboardsController.cs" />
     <Compile Include="Controllers\ShareController.cs" />
     <Compile Include="ErrorHandler\AiHandleErrorAttribute.cs" />
     <Compile Include="Firebase\FirebaseCloudMessanger.cs" />

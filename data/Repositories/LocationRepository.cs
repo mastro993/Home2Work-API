@@ -104,25 +104,35 @@ namespace data.Repositories
             }
         }
 
-        public int InsertUserLocation(long userId, Location location)
+        public bool InsertUserLocation(long userId, double latitude, double longitude, DateTime date)
         {
             //if (!isLocationRelevant(userId,location)) return 0;
 
             var con = new SqlConnection(Config.ConnectionString);
 
-            var format = "yyyy-mm-dd'T'hh:mm:ss";
+
+            var format = "yyyy-mm-ddThh:mm:ss";
 
             var cmd = new SqlCommand
             {
                 CommandText =
-                    $"insert_user_location {userId}, {location.Latitude.ToString().Replace(",", ".")}, {location.Longitude.ToString().Replace(",", ".")}, '{location.Date.ToString(format)}'",
+                    $@"insert_user_location {userId}, {latitude.ToString(CultureInfo.InvariantCulture)}, {
+                            longitude.ToString(CultureInfo.InvariantCulture)
+                        }, @Date",
                 Connection = con
             };
+
+            cmd.Parameters.Add("@Date", SqlDbType.DateTime).Value = date;
 
             try
             {
                 con.Open();
-                return (int) cmd.ExecuteScalar();
+                var rows = cmd.ExecuteNonQuery();
+                return rows > 0;
+            }
+            catch (Exception e)
+            {
+                return false;
             }
             finally
             {

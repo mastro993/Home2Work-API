@@ -9,5 +9,6 @@ namespace domain.Interfaces
         List<Company> GetAll();
 
         Company GetById(long companyId);
+
     }
 }

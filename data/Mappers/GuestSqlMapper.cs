@@ -32,7 +32,7 @@ namespace data.Mappers
                 StartLng = startLng,
                 EndLat = endLat,
                 EndLng = endLng,
-                Status = (Guest.GuestStatus)status,
+                CurrentStatus = (Guest.Status)status,
                 Distance = distance,
             };
         }

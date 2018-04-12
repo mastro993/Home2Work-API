@@ -12,6 +12,6 @@ namespace domain.Interfaces
 
         List<Location> GetAllUserLocations(long userId, DayOfWeek weekday, bool byDate);
 
-        int InsertUserLocation(long userId, Location location);
+        bool InsertUserLocation(long userId, double latitude, double longitude, DateTime date);
     }
 }

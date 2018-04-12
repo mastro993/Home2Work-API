@@ -10,8 +10,8 @@ namespace domain.Entities
         public User Host { get; set; }
         public List<Guest> Guests { get; set; }
         public DateTime Time { get; set; }
-        public ShareType Type { get; set; }
-        public ShareStatus Status { get; set; }
+        public Type Type { get; set; }
+        public Status Status { get; set; }
         public double StartLat { get; set; }
         public double StartLng { get; set; }
         public double? EndLat { get; set; }
@@ -19,13 +19,13 @@ namespace domain.Entities
         public int SharedDistance { get; set; }
     }
 
-    public enum ShareType
+    public enum Type
     {
         Driver,
         Guest
     }
 
-    public enum ShareStatus
+    public enum Status
     {
         Created,
         Completed,

@@ -28,7 +28,7 @@ namespace data.Mappers
             {
                 Id = shareId,
                 Host = _userRepo.GetById(hostId),
-                Status = (ShareStatus) status,
+                Status = (Status) status,
                 Time = time,
                 StartLng = startLng,
                 StartLat = startLat,

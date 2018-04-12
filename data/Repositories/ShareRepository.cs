@@ -35,7 +35,7 @@ namespace data.Repositories
                     {
                         var share = _shareMapper.MapFrom(reader);
                         share.Guests = GetShareGuests(share.Id);
-                        share.Type = share.Host.Id == userId ? ShareType.Driver : ShareType.Guest;
+                        share.Type = share.Host.Id == userId ? Type.Driver : Type.Guest;
 
                         shares.Add(share);
                     }
@@ -71,7 +71,7 @@ namespace data.Repositories
                         var share = _shareMapper.MapFrom(reader);
                         var guests = GetShareGuests(share.Id);
                         share.Guests = guests;
-                        share.Type = share.Host.Id == userId ? ShareType.Driver : ShareType.Guest;
+                        share.Type = share.Host.Id == userId ? Type.Driver : Type.Guest;
                         return share;
                     }
                 }
@@ -106,7 +106,7 @@ namespace data.Repositories
                         var share = _shareMapper.MapFrom(reader);
                         var guests = GetShareGuests(share.Id);
                         share.Guests = guests;
-                        share.Type = share.Host.Id == userId ? ShareType.Driver : ShareType.Guest;
+                        share.Type = share.Host.Id == userId ? Type.Driver : Type.Guest;
                         return share;
                     }
                 }

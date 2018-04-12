@@ -30,7 +30,7 @@ namespace HomeToWork_API.Controllers
 
             foreach (var location in locationList)
             {
-                location.LocationId = _locationRepo.InsertUserLocation(Session.User.Id, location);
+                _locationRepo.InsertUserLocation(Session.User.Id, location.Latitude, location.Longitude, location.Date);
             }
 
             return Ok(true);
