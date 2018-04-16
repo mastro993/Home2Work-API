@@ -8,7 +8,7 @@ namespace domain.Interfaces
 
         List<Entities.Match> GetAll();
 
-        List<Entities.Match> GetByUserId(long userId);
+        List<Entities.Match> GetByUserId(long userId, int limit, int page);
 
         Entities.Match GetById(int matchId);
 

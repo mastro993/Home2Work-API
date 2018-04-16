@@ -29,12 +29,14 @@ namespace HomeToWork_API.Controllers
         }
 
         [HttpGet]
-        [Route("api/user/share")]
-        public IHttpActionResult GetShares()
+        [Route("api/user/share/list")]
+        public IHttpActionResult GetShares(
+            [FromUri] int page = 1, 
+            [FromUri] int limit = int.MaxValue)
         {
             if (!Session.Authorized) return Unauthorized();
 
-            var shares = _shareRepo.GetUserShares(Session.User.Id);
+            var shares = _shareRepo.GetUserShares(Session.User.Id, page, limit);
 
             return Ok(shares);
         }

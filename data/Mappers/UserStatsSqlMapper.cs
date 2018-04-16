@@ -9,16 +9,16 @@ namespace data.Mappers
     {
         public override UserStats MapFrom(SqlDataReader @from)
         {
-            var monthSharedDistance = @from["month_shared_distance"].ToInt();
-            var monthlySharedDistanceAvg =@from["month_shared_distance_avg"].ToFloat();
+            var monthSharedDistance = @from["monthly_shared_distance"].ToInt();
+            var monthlySharedDistanceAvg =@from["monthly_shared_distance_avg"].ToFloat();
             var totalSharedDistance = @from["total_shared_distance"].ToInt();
 
             var totalShares =@from["total_shares"].ToInt();
             var totalGuestShares = @from["guest_shares"].ToInt();
             var totalHostShares = @from["host_shares"].ToInt();
-            var monthShares = @from["month_shares"].ToInt();
-            var monthlySharesAvg = @from["month_shares_avg"].ToFloat();
-            var bestMonthlyShares = @from["month_shares_record"].ToInt();
+            var monthShares = @from["monthly_shares"].ToInt();
+            var monthlySharesAvg = @from["monthly_shares_avg"].ToFloat();
+            var bestMonthlyShares = @from["monthly_shares_record"].ToInt();
             var longestShare = @from["longest_share"].ToInt(); 
 
 

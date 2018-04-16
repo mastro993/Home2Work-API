@@ -64,12 +64,12 @@ namespace data.Repositories
             return matches;
         }
 
-        public List<Match> GetByUserId(long userId)
+        public List<Match> GetByUserId(long userId, int limit, int page)
         {
             var con = new SqlConnection(Config.ConnectionString);
             var cmd = new SqlCommand
             {
-                CommandText = $"get_user_matches {userId}",
+                CommandText = $"get_user_matches {userId}, {limit}, {page}",
                 Connection = con
             };
 

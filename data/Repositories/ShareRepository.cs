@@ -13,12 +13,12 @@ namespace data.Repositories
         private readonly Mapper<SqlDataReader, Share> _shareMapper = new ShareSqlMapper();
         private readonly Mapper<SqlDataReader, Guest> _guestMapper = new GuestSqlMapper();
 
-        public List<Share> GetUserShares(long userId)
+        public List<Share> GetUserShares(long userId, int? page, int? limit)
         {
             var con = new SqlConnection(Config.ConnectionString);
             var cmd = new SqlCommand
             {
-                CommandText = $"get_user_shares {userId}",
+                CommandText = $"get_user_shares {userId}, {limit}, {page}",
                 Connection = con
             };
 

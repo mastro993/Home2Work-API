@@ -22,12 +22,15 @@ namespace HomeToWork_API.Controllers
         }
 
         [HttpGet]
-        [Route("api/user/match")]
-        public IHttpActionResult GetMatches()
+        [Route("api/user/match/list")]
+        public IHttpActionResult GetMatches(
+            [FromUri] int page = 1,
+            [FromUri] int limit = int.MaxValue
+        )
         {
             if (!Session.Authorized) return Unauthorized();
 
-            var matches = _matchRepo.GetByUserId(Session.User.Id);
+            var matches = _matchRepo.GetByUserId(Session.User.Id, limit, page);
 
             if (matches.Count != 0) return Ok(matches);
 

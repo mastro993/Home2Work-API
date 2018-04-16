@@ -13,7 +13,7 @@ namespace HomeToWork_API.Controllers
 {
     public class LeaderboardsController : ApiController
     {
-        private ILeaderboardsRepository _leaderboardsRepo;
+        private readonly ILeaderboardsRepository _leaderboardsRepo;
 
         public LeaderboardsController()
         {
@@ -23,23 +23,22 @@ namespace HomeToWork_API.Controllers
         [HttpGet]
         [Route("api/user/leaderboard")]
         public IHttpActionResult GetUsersLeaderboard(
-            [FromUri] Leaderboard.Type? type = null,
+            [FromUri] Leaderboard.Type type = Leaderboard.Type.Shares,
             [FromUri] Leaderboard.Range range = Leaderboard.Range.Global,
             [FromUri] Leaderboard.TimeSpan timeSpan = Leaderboard.TimeSpan.AllTime,
-            [FromUri] int page = 0, [FromUri] int limit = 0)
+            [FromUri] int? companyId = null,
+            [FromUri] int page = 1,
+            [FromUri] int limit = 20)
         {
             if (!Session.Authorized)
                 return Unauthorized();
 
-            if (type == null)
-            {
-                return BadRequest("Manca il campo type");
-            }
+            var leaderboard = range == Leaderboard.Range.Company
+                ? _leaderboardsRepo.GetUsersCompanyLeaderboard(companyId, type, timeSpan, page, limit)
+                : _leaderboardsRepo.GetUsersGlobalLeaderboard(type, timeSpan, page, limit);
 
-            var data = type + " " + range + " " + timeSpan + " " + page + " " + limit;
 
-            return Ok(data);
-            //return Ok(Session.User);
+            return Ok(leaderboard);
         }
 
         [HttpGet]
@@ -48,7 +47,8 @@ namespace HomeToWork_API.Controllers
             [FromUri] Leaderboard.Type? type = null,
             [FromUri] Leaderboard.Range range = Leaderboard.Range.Global,
             [FromUri] Leaderboard.TimeSpan timeSpan = Leaderboard.TimeSpan.AllTime,
-            [FromUri] int page = 0, [FromUri] int limit = 0)
+            [FromUri] int page = 1,
+            [FromUri] int limit = 20)
         {
             if (!Session.Authorized)
                 return Unauthorized();
@@ -60,8 +60,20 @@ namespace HomeToWork_API.Controllers
 
             var data = type + " " + range + " " + timeSpan;
 
-            return Ok(data);
-            //return Ok(Session.User);
+            return Ok();
+        }
+
+        [HttpGet]
+        [Route("api/user/{userId}/leaderboard")]
+        public IHttpActionResult GetUserRankings(long userId)
+        {
+            if (!Session.Authorized)
+                return Unauthorized();
+
+            //var rankings = _leaderboardsRepo.GetUserRanks(userId);
+        
+
+            return Ok();
         }
     }
 }

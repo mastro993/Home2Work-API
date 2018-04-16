@@ -11,6 +11,6 @@ namespace domain.Entities
         public string UserName { get; set; }
         public long CompanyId { get; set; }
         public string CompanyName { get; set; }
-        public double Float { get; set; }
+        public long Amount { get; set; }
     }
 }

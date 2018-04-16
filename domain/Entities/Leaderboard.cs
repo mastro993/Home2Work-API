@@ -10,25 +10,19 @@ namespace domain.Entities
         {
             AllTime,
             Monthly,
-            Weekly, 
-            Daily
+            Weekly
         }
 
         public enum Range
         {
             Global,
-            Company,
-            Regional
+            Company
         }
 
         public enum Type
         {
             Shares,
-            SharesAvg,
-            SharedDistance,
-            SharedDistanceAvg,
-            LongestShare
+            Distance
         }
-
     }
 }
