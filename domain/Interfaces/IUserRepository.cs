@@ -19,5 +19,7 @@ namespace domain.Interfaces
         Dictionary<int, SharingActivity> GetUserMonthlyActivity(long userId);
 
         bool UpdateUserStatus(long userId, string status);
+
+        ProfileStatus GetUserStatus(long userId);
     }
 }

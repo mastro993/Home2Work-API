@@ -18,6 +18,7 @@ namespace data.Repositories
         private readonly Mapper<SqlDataReader, User> _userMapper = new UserSqlMapper();
         private readonly Mapper<SqlDataReader, UserStats> _statsMapper = new UserStatsSqlMapper();
         private readonly Mapper<SqlDataReader, SharingActivity> _sharingActivityMapper = new SharingActivitySqlMapper();
+        private readonly Mapper<SqlDataReader, ProfileStatus> _userStatusMapper = new ProfileStatusSqlMapper();
 
         public User Login(string email, string passwordHash)
         {
@@ -115,6 +116,7 @@ namespace data.Repositories
 
         public UserProfile GetProfileById(long userId)
         {
+            var status = GetUserStatus(userId);
             var user = GetById(userId);
             var karma = GetUserKarma(userId);
             var stats = GetUserStats(userId);
@@ -122,6 +124,7 @@ namespace data.Repositories
 
             var profile = new UserProfile()
             {
+                Status = status,
                 Karma = karma,
                 Stats = stats,
                 Activity = activity,
@@ -378,6 +381,36 @@ namespace data.Repositories
             }
 
             return rows > 0;
+        }
+
+        public ProfileStatus GetUserStatus(long userId)
+        {
+            var con = new SqlConnection(Config.ConnectionString);
+
+            var cmd = new SqlCommand
+            {
+                CommandText = $"get_user_status {userId}",
+                Connection = con
+            };
+
+            con.Open();
+
+            try
+            {
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        return _userStatusMapper.MapFrom(reader);
+                    }
+                }
+
+                return null;
+            }
+            finally
+            {
+                con.Close();
+            }
         }
     }
 }

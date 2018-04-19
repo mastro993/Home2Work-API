@@ -92,7 +92,7 @@ namespace HomeToWork_API.Controllers
             return Ok(user);
         }
 
-        [HttpGet]
+        [HttpPost]
         [Route("api/user/status")]
         public IHttpActionResult Get(FormDataCollection data)
         {
