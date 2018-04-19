@@ -14,19 +14,19 @@ namespace data.Mappers
 
         public override User MapFrom(SqlDataReader @from)
         {
-            var userId = @from["user_id"].ToLong();
+            var userId = @from["id"].ToLong();
             var email = @from["email"].ToString();
             var name = @from["name"].ToString();
             var surname = @from["surname"].ToString();
             var companyId = @from["company_id"].ToLong();
             var homeLat = @from["latitude"].ToDouble();
             var homeLng = @from["longitude"].ToDouble();
-            var street = @from["street"].ToString();
+            var street = @from["address"].ToString();
             var region = @from["region"].ToString();
             var city = @from["city"].ToString();
             var cap = @from["cap"].ToString();
             var district = @from["district"].ToString();
-            var regdate = LocalDateTime.Parse(@from["regdate"].ToString());
+            var regdate = LocalDateTime.Parse(@from["registration_date"].ToString());
             //var accessToken = @from["access_token"].ToString();
 
             var company = _companyRepo.GetById(companyId);

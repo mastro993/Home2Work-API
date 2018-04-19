@@ -55,7 +55,7 @@ namespace HomeToWork_API.Controllers
 
             if (type == null)
             {
-                return BadRequest("Manca il campo type");
+                return BadRequest("Campo Type mancante");
             }
 
             var data = type + " " + range + " " + timeSpan;

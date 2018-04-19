@@ -90,7 +90,7 @@ namespace data.Repositories
 
             var cmd = new SqlCommand
             {
-                CommandText = $@"get_user_active_share {userId}",
+                CommandText = $@"get_user_current_share {userId}",
                 Connection = con
             };
 

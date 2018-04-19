@@ -5,15 +5,19 @@ namespace domain.Interfaces
 {
     public interface IUserRepository
     {
-  
-        User Login(string email, string password);
+
+        string GetUserSalt(string email);
+        User Login(string email, string passwordHash);
         User GetById(long userId);
+        UserProfile GetProfileById(long userId);
         List<User> GetAll();
         string NewSessionToken(long userId);    
         User GetBySessionToken(string sessionToken);
-        UserExp GetUserExp(long userId);
+        UserKarma GetUserKarma(long userId);
         bool AddExpToUser(long userId, long exp);
         UserStats GetUserStats(long userId);
         Dictionary<int, SharingActivity> GetUserMonthlyActivity(long userId);
+
+        bool UpdateUserStatus(long userId, string status);
     }
 }

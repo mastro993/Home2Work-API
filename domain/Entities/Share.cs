@@ -31,4 +31,12 @@ namespace domain.Entities
         Completed,
         Canceled
     }
+
+    public enum Action
+    {
+        Join,
+        Leave,
+        Complete,
+        Finish
+    }
 }

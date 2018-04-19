@@ -24,7 +24,10 @@ namespace HomeToWork_API.Controllers
         [Route("api/user/location")]
         public IHttpActionResult PostUserLocations(IEnumerable<Location> locations)
         {
-            if (!Session.Authorized) return Unauthorized();
+            if (!Session.Authorized)
+            {
+                return Unauthorized();
+            }
 
             var locationList = locations.ToList();
 
@@ -36,15 +39,5 @@ namespace HomeToWork_API.Controllers
             return Ok(true);
         }
 
-        [HttpGet]
-        [Route("api/user/{userId:int}/location")]
-        public IHttpActionResult GetUserLocations(int userId)
-        {
-            if (!Session.Authorized) return Unauthorized();
-
-
-            var locations = _locationRepo.GetAllUserLocations(userId, false);
-            return Ok(locations);
-        }
     }
 }

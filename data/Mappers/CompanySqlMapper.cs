@@ -12,10 +12,9 @@ namespace data.Mappers
             var id = @from["id"].ToLong();
             var name = @from["name"].ToString();
             var domain = @from["domain"].ToString();
-
             var lat = @from["latitude"].ToDouble();
             var lng = @from["longitude"].ToDouble();
-            var street = @from["street"].ToString();
+            var street = @from["address"].ToString();
             var region = @from["region"].ToString();
             var cap = @from["cap"].ToString();
             var city = @from["city"].ToString();

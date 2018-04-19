@@ -13,6 +13,7 @@ using domain.Interfaces;
 using HomeToWork_API.Auth;
 using HomeToWork_API.Firebase;
 using HomeToWork_API.Utils;
+using Microsoft.Ajax.Utilities;
 
 namespace HomeToWork_API.Controllers
 {
@@ -26,10 +27,13 @@ namespace HomeToWork_API.Controllers
         }
 
         [HttpGet]
-        [Route("api/user/chat")]
+        [Route("api/chat/list")]
         public IHttpActionResult GetChatList()
         {
-            if (!Session.Authorized) return Unauthorized();
+            if (!Session.Authorized)
+            {
+                return Unauthorized();
+            }
 
             var chats = _chatRepo.GetUserChatList(Session.User.Id);
             return Ok(chats);
@@ -40,7 +44,9 @@ namespace HomeToWork_API.Controllers
         public IHttpActionResult GetChatMessages(int chatId)
         {
             if (!Session.Authorized)
+            {
                 return Unauthorized();
+            }
 
             var messages = _chatRepo.GetMessagesByChatId(Session.User.Id, chatId);
             _chatRepo.SetMessagesAsRead(Session.User.Id, chatId);
@@ -52,15 +58,25 @@ namespace HomeToWork_API.Controllers
         [Route("api/chat/{chatId:int}")]
         public IHttpActionResult PostMessage(int chatId, FormDataCollection data)
         {
-            if (!Session.Authorized) return Unauthorized();
+            if (!Session.Authorized)
+            {
+                return Unauthorized();
+            }
 
             var chat = _chatRepo.GetByChatId(Session.User.Id, chatId);
 
             if (chat == null)
+            {
                 return NotFound();
+            }
 
             var valueMap = FormDataConverter.Convert(data);
             var text = valueMap.Get("text");
+
+            if (text.IsNullOrWhiteSpace())
+            {
+                return BadRequest("Corpo messaggio mancante o vuoto");
+            }
 
             var messageId =_chatRepo.InsertMessage(Session.User.Id, chatId, text);
 
@@ -71,11 +87,14 @@ namespace HomeToWork_API.Controllers
                 {"MESSAGE_ID", messageId.ToString()}
             };
             var recipientId = chat.User.Id;
+
+            #pragma warning disable 4014
             FirebaseCloudMessanger.SendMessage(
                 recipientId,
                 "Nuovo messaggio", Session.User + " ti ha inviato un nuovo messaggio",
                 msgData,
                 "it.gruppoinfor.hometowork.NEW_MESSAGE");
+            #pragma warning restore 4014
 
 
             var message = _chatRepo.getMessageById(messageId);
@@ -88,7 +107,10 @@ namespace HomeToWork_API.Controllers
         [Route("api/message/{messageId:long}")]
         public IHttpActionResult GetMessage(long messageId)
         {
-            if (!Session.Authorized) return Unauthorized();
+            if (!Session.Authorized)
+            {
+                return Unauthorized();
+            }
 
             var message = _chatRepo.getMessageById(messageId);
 
@@ -104,18 +126,27 @@ namespace HomeToWork_API.Controllers
         [Route("api/chat/new")]
         public IHttpActionResult PostNewChat(FormDataCollection data)
         {
-            if (!Session.Authorized) return Unauthorized();
+            if (!Session.Authorized)
+            {
+                return Unauthorized();
+            }
 
             var valueMap = FormDataConverter.Convert(data);
 
             var recipientId = valueMap.Get("recipientId").AsInt();
 
-            if (recipientId == Session.User.Id) return BadRequest();
+            if (recipientId == Session.User.Id)
+            {
+                return BadRequest("L'id del destinatario è uguale all'id del mittente");
+            }
 
             // Controllo se era già stata creata una chat tra i due utenti
             var chat = _chatRepo.GetByUserIds(Session.User.Id, recipientId);
 
-            if (chat != null) return Ok(chat);
+            if (chat != null)
+            {
+                return Ok(chat);
+            }
 
             // Se non esiste ne creo una nuova
 

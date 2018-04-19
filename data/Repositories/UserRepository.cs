@@ -19,15 +19,13 @@ namespace data.Repositories
         private readonly Mapper<SqlDataReader, UserStats> _statsMapper = new UserStatsSqlMapper();
         private readonly Mapper<SqlDataReader, SharingActivity> _sharingActivityMapper = new SharingActivitySqlMapper();
 
-        public User Login(string email, string password)
+        public User Login(string email, string passwordHash)
         {
             var con = new SqlConnection(Config.ConnectionString);
-            var salt = GetUserSalt(email);
-            var saltedPassword = HashingUtils.Sha256(password + salt);
 
             var cmd = new SqlCommand
             {
-                CommandText = $"user_login '{email}', '{saltedPassword}'",
+                CommandText = $"user_login '{email}', '{passwordHash}'",
                 Connection = con
             };
 
@@ -115,6 +113,24 @@ namespace data.Repositories
             }
         }
 
+        public UserProfile GetProfileById(long userId)
+        {
+            var user = GetById(userId);
+            var karma = GetUserKarma(userId);
+            var stats = GetUserStats(userId);
+            var activity = GetUserMonthlyActivity(userId);
+
+            var profile = new UserProfile()
+            {
+                Karma = karma,
+                Stats = stats,
+                Activity = activity,
+                Regdate = user.Regdate
+            };
+
+            return profile;
+        }
+
         public List<User> GetAll()
         {
             var con = new SqlConnection(Config.ConnectionString);
@@ -150,8 +166,6 @@ namespace data.Repositories
         public string NewSessionToken(long userId)
         {
             var con = new SqlConnection(Config.ConnectionString);
-            //var randomString = StringUtils.RandomString();
-            //var newToken = HashingUtils.Sha256(randomString);
 
             var newToken = PasswordGenerator.Generate(length: 64);
 
@@ -206,13 +220,13 @@ namespace data.Repositories
             }
         }
 
-        public UserExp GetUserExp(long userId)
+        public UserKarma GetUserKarma(long userId)
         {
             var con = new SqlConnection(Config.ConnectionString);
 
             var cmd = new SqlCommand
             {
-                CommandText = $"get_user_exp {userId}",
+                CommandText = $"get_user_karma {userId}",
                 Connection = con
             };
 
@@ -224,10 +238,10 @@ namespace data.Repositories
                 {
                     while (reader.Read())
                     {
-                        var amount = reader["total_exp"].ToInt();
-                        var monthAmount = reader["month_exp"].ToInt();
-                        var exp = new UserExp(amount) {MonthExp = monthAmount};
-                        return exp;
+                        var amount = reader["total_karma"].ToInt();
+                        var monthAmount = reader["month_karma"].ToInt();
+                        var karma = new UserKarma(amount) {MonthKarma = monthAmount};
+                        return karma;
                     }
                 }
 
@@ -267,7 +281,7 @@ namespace data.Repositories
             var con = new SqlConnection(Config.ConnectionString);
             var cmd = new SqlCommand
             {
-                CommandText = $"get_user_stats {userId}",
+                CommandText = $"get_user_statistics {userId}",
                 Connection = con
             };
 
@@ -340,5 +354,30 @@ namespace data.Repositories
             return activity;
         }
 
+        public bool UpdateUserStatus(long userId, string status)
+        {
+            var con = new SqlConnection(Config.ConnectionString);
+            var cmd = new SqlCommand
+            {
+                CommandText = $"update_user_status {userId}, '{status}'",
+                Connection = con
+            };
+
+
+            con.Open();
+
+            int rows;
+
+            try
+            {
+                rows = cmd.ExecuteNonQuery();
+            }
+            finally
+            {
+                con.Close();
+            }
+
+            return rows > 0;
+        }
     }
 }
