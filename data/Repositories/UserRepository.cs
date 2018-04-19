@@ -136,7 +136,7 @@ namespace data.Repositories
             var con = new SqlConnection(Config.ConnectionString);
             var cmd = new SqlCommand
             {
-                CommandText = "SELECT * FROM users LEFT JOIN users_data ON users.id = users_data.user_id",
+                CommandText = "SELECT * FROM users",
                 Connection = con
             };
 
