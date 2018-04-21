@@ -124,7 +124,7 @@ namespace data.Repositories
 
             var profile = new UserProfile()
             {
-                Status = status,
+                Status = (status == null) ? null : status.Hidden ? null : status,
                 Karma = karma,
                 Stats = stats,
                 Activity = activity,
@@ -311,7 +311,7 @@ namespace data.Repositories
             return stats;
         }
 
-        public Dictionary<int, SharingActivity> GetUserMonthlyActivity(long userId)
+        public Dictionary<string, SharingActivity> GetUserMonthlyActivity(long userId)
         {
             var con = new SqlConnection(Config.ConnectionString);
             var cmd = new SqlCommand
@@ -323,7 +323,7 @@ namespace data.Repositories
 
             con.Open();
 
-            var rawActivity = new Dictionary<int, SharingActivity>();
+            var rawActivity = new List<SharingActivity>();
 
             try
             {
@@ -331,8 +331,7 @@ namespace data.Repositories
                 {
                     while (reader.Read())
                     {
-                        var sharingActivity = _sharingActivityMapper.MapFrom(reader);
-                        rawActivity.Add(sharingActivity.Month, sharingActivity);
+                        rawActivity.Add(_sharingActivityMapper.MapFrom(reader));
                     }
                 }
             }
@@ -341,20 +340,93 @@ namespace data.Repositories
                 con.Close();
             }
 
-            var activity = new Dictionary<int, SharingActivity>();
-            var month = DateTime.Now.Month;
+            var startMonth = DateTime.Now.Month;
+            var startYear = DateTime.Now.Year;
 
-            for (var i = 0; i <= 5; i++)
+            for (var i = 0; i <= 10; i++)
             {
-                var selectedActivity = rawActivity[month];
-                activity.Add(month, selectedActivity);
-
-                month -= 1;
-                if (month == 0) month = 12;
+                if (startMonth == 1)
+                {
+                    startMonth = 12;
+                    --startYear;
+                }
+                else
+                {
+                    --startMonth;
+                }
             }
 
-            activity.Reverse();
-            return activity;
+            var month = startMonth;
+            var year = startYear;
+
+
+            rawActivity.Reverse();
+
+            var monthlyActivity = new Dictionary<string, SharingActivity>();
+
+            var distance = 0;
+            var shares = 0;
+            var count = 0f;
+
+            for (var i = 0; i <= 11; i++)
+            {
+                var activity = rawActivity.Find(a => a.Month == month && a.Year == year);
+
+                if (activity != null)
+                {
+                    ++count;
+
+                    distance += activity.Distance;
+                    shares += activity.Shares;
+                    activity.DistanceAvg = (distance / count).ToFloat();
+                    activity.SharesAvg = (shares / count).ToFloat();
+                }
+                else if (count > 0)
+                {
+                    ++count;
+
+                    activity = new SharingActivity()
+                    {
+                        Year = year,
+                        Month = month,
+                        Distance = 0,
+                        DistanceAvg = (distance / count).ToFloat(),
+                        Shares = 0,
+                        SharesAvg = (shares / count).ToFloat()
+                    };
+                }
+                else
+                {
+                    activity = new SharingActivity()
+                    {
+                        Year = year,
+                        Month = month,
+                        Distance = 0,
+                        DistanceAvg = 0,
+                        Shares = 0,
+                        SharesAvg = 0
+                    };
+                }
+
+
+                var key = $"{year}-{month}";
+
+                monthlyActivity.Add(key, activity);
+
+
+                if (month == 12)
+                {
+                    month = 1;
+                    ++year;
+                }
+                else
+                {
+                    ++month;
+                }
+            }
+
+
+            return monthlyActivity;
         }
 
         public bool UpdateUserStatus(long userId, string status)
@@ -406,6 +478,29 @@ namespace data.Repositories
                 }
 
                 return null;
+            }
+            finally
+            {
+                con.Close();
+            }
+        }
+
+        public bool HideUserStatus(long userId)
+        {
+            var con = new SqlConnection(Config.ConnectionString);
+
+            var cmd = new SqlCommand
+            {
+                CommandText = $"hide_user_status {userId}",
+                Connection = con
+            };
+
+            con.Open();
+
+            try
+            {
+                var rows = cmd.ExecuteNonQuery();
+                return rows > 0;
             }
             finally
             {

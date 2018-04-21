@@ -94,7 +94,7 @@ namespace HomeToWork_API.Controllers
 
         [HttpPost]
         [Route("api/user/status")]
-        public IHttpActionResult Get(FormDataCollection data)
+        public IHttpActionResult PostStatus(FormDataCollection data)
         {
             if (!Session.Authorized)
             {
@@ -115,6 +115,20 @@ namespace HomeToWork_API.Controllers
             return Ok(updated);
         }
 
+        [HttpDelete]
+        [Route("api/user/status")]
+        public IHttpActionResult Get()
+        {
+            if (!Session.Authorized)
+            {
+                return Unauthorized();
+            }
+
+         
+
+            return Ok();
+        }
+
         [HttpGet]
         [Route("api/user/profile")]
         public IHttpActionResult GetProfile([FromUri] long? id = null)
@@ -124,7 +138,22 @@ namespace HomeToWork_API.Controllers
                 return Unauthorized();
             }
 
-            var profile = _userRepo.GetProfileById(id ?? Session.User.Id);
+            UserProfile profile;
+
+            if (id == null)
+            {
+                profile = _userRepo.GetProfileById(Session.User.Id);
+            }
+            else
+            {
+                var user = _userRepo.GetById(id.Value);
+                if (user == null)
+                {
+                    return NotFound();
+                }
+
+                profile = _userRepo.GetProfileById(id.Value);
+            }
 
             return Ok(profile);
         }

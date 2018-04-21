@@ -9,11 +9,13 @@ namespace data.Mappers
     {
         public override SharingActivity MapFrom(SqlDataReader @from)
         {
+            var year = @from["year"].ToInt();
             var month = @from["month"].ToInt();
             var shares = @from["shares"].ToInt();
             var distance = @from["distance"].ToInt();
             return new SharingActivity()
             {
+                Year = year,
                 Month = month,
                 Shares = shares,
                 SharesAvg = 0f,

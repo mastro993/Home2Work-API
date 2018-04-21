@@ -16,9 +16,11 @@ namespace domain.Interfaces
         UserKarma GetUserKarma(long userId);
         bool AddExpToUser(long userId, long exp);
         UserStats GetUserStats(long userId);
-        Dictionary<int, SharingActivity> GetUserMonthlyActivity(long userId);
+        Dictionary<string, SharingActivity> GetUserMonthlyActivity(long userId);
 
         bool UpdateUserStatus(long userId, string status);
+
+        bool HideUserStatus(long userId);
 
         ProfileStatus GetUserStatus(long userId);
     }

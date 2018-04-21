@@ -8,5 +8,6 @@ namespace domain.Entities
     {
         public string Status { get; set; }
         public DateTime Date { get; set; }
+        public bool Hidden { get; set; }
     }
 }

@@ -13,12 +13,14 @@ namespace data.Mappers
         public override ProfileStatus MapFrom(SqlDataReader @from)
         {
             var status = @from["status"].ToString();
-            var date = LocalDateTime.Parse(@from["date"].ToString());
+            var date = DateTime.Parse(@from["date"].ToString());
+            var hidden = (bool)@from["hidden"];
 
             return new ProfileStatus()
             {
                 Status = status,
-                Date = date
+                Date = date,
+                Hidden = hidden
             };
         }
     }
