@@ -434,7 +434,7 @@ namespace data.Repositories
             var con = new SqlConnection(Config.ConnectionString);
             var cmd = new SqlCommand
             {
-                CommandText = $"update_user_status {userId}, '{status}'",
+                CommandText = $"update_user_status {userId}, '{status.Replace("'", "''")}'",
                 Connection = con
             };
 
