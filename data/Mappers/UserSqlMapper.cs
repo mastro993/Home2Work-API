@@ -19,15 +19,14 @@ namespace data.Mappers
             var name = @from["name"].ToString();
             var surname = @from["surname"].ToString();
             var companyId = @from["company_id"].ToLong();
-            var homeLat = @from["latitude"].ToDouble();
-            var homeLng = @from["longitude"].ToDouble();
-            var street = @from["address"].ToString();
-            var region = @from["region"].ToString();
-            var city = @from["city"].ToString();
-            var cap = @from["cap"].ToString();
-            var district = @from["district"].ToString();
+            var homeLat = @from["home_latitude"].ToDouble();
+            var homeLng = @from["home_longitude"].ToDouble();
+            var homeStreet = @from["home_address"].ToString();
+            var homeRegion = @from["home_region"].ToString();
+            var homeCity = @from["home_city"].ToString();
+            var homeCap = @from["home_cap"].ToString();
+            var homeDistrict = @from["home_district"].ToString();
             var regdate = LocalDateTime.Parse(@from["registration_date"].ToString());
-            //var accessToken = @from["access_token"].ToString();
 
             var company = _companyRepo.GetById(companyId);
 
@@ -41,11 +40,11 @@ namespace data.Mappers
                 {
                     Latitude = homeLat,
                     Longitude = homeLng,
-                    Street = street,
-                    Region = region,
-                    City = city,
-                    PostalCode = cap,
-                    District = district
+                    Street = homeStreet,
+                    Region = homeRegion,
+                    City = homeCity,
+                    PostalCode = homeCap,
+                    District = homeDistrict
                 },
                 Company = company,
                 Regdate = regdate

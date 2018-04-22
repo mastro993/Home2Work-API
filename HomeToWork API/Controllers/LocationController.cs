@@ -33,10 +33,24 @@ namespace HomeToWork_API.Controllers
 
             foreach (var location in locationList)
             {
-                _locationRepo.InsertUserLocation(Session.User.Id, location.Latitude, location.Longitude, location.Date);
+                _locationRepo.InsertUserSCLLocation(Session.User.Id, location.Latitude, location.Longitude, location.Date);
             }
 
             return Ok(true);
+        }
+
+        [HttpPost]
+        [Route("api/user/lastlocation")]
+        public IHttpActionResult PostUserLastLocation(Location location)
+        {
+            if (!Session.Authorized)
+            {
+                return Unauthorized();
+            }
+
+            var inserted = _locationRepo.InsertUserLastLocation(Session.User.Id, location.Latitude, location.Longitude, location.Date);
+
+            return Ok(inserted);
         }
 
     }
