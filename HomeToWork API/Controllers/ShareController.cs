@@ -89,7 +89,7 @@ namespace HomeToWork_API.Controllers
             }
             catch (Exception e)
             {
-                return BadRequest("Formato latitudine non corretto");
+                return BadRequest("Formato latitudine non corretto (" + e + ")");
             }
 
             try
@@ -239,7 +239,7 @@ namespace HomeToWork_API.Controllers
 
             #pragma warning disable 4014
             FirebaseCloudMessanger.SendMessage(
-                share.Host.Id,
+                share.Host,
                 "Nuovo ospite", Session.User + " si è unito alla condivisione in corso",
                 msgData,
                 "it.gruppoinfor.hometowork.SHARE_JOIN");
@@ -289,7 +289,7 @@ namespace HomeToWork_API.Controllers
 
 #pragma warning disable 4014
             FirebaseCloudMessanger.SendMessage(
-                share.Host.Id,
+                share.Host,
                 "Condivisione abbandonata", Session.User + " ha abbandonato la condivisione in corso",
                 msgData,
                 "it.gruppoinfor.hometowork.SHARE_LEAVED");
@@ -359,7 +359,8 @@ namespace HomeToWork_API.Controllers
             var request = new DirectionsRequest()
             {
                 Origin = new GoogleApi.Entities.Common.Location(guest.StartLat, guest.StartLng),
-                Destination = new GoogleApi.Entities.Common.Location(completeLat, completeLng)
+                Destination = new GoogleApi.Entities.Common.Location(completeLat, completeLng),
+                Key = "AIzaSyDrnpGbytKl9jFKNTmI3B2vXh_68x3DG2Y"
             };
             var result = GoogleMaps.Directions.Query(request);
             var distance = result.Routes.First().Legs.First().Distance.Value;
@@ -375,7 +376,7 @@ namespace HomeToWork_API.Controllers
 
             #pragma warning disable 4014
             FirebaseCloudMessanger.SendMessage(
-                host.Id,
+                host,
                 "Condivisione completata",
                 Session.User + " ha completato la condivisione percorrendo " + distance / 1000.0 + " Km",
                 msgData,
@@ -452,7 +453,8 @@ namespace HomeToWork_API.Controllers
             var request = new DirectionsRequest()
             {
                 Origin = new GoogleApi.Entities.Common.Location(share.StartLat, share.StartLng),
-                Destination = new GoogleApi.Entities.Common.Location(finishLat, finishLng)
+                Destination = new GoogleApi.Entities.Common.Location(finishLat, finishLng),
+                Key = "AIzaSyDrnpGbytKl9jFKNTmI3B2vXh_68x3DG2Y"
             };
             var result = GoogleMaps.Directions.Query(request);
             var distance = result.Routes.First().Legs.First().Distance.Value;
@@ -511,7 +513,7 @@ namespace HomeToWork_API.Controllers
                 };
                 #pragma warning disable 4014
                 FirebaseCloudMessanger.SendMessage(
-                    guest.User.Id,
+                    guest.User,
                     "Condivisione annullata", Session.User + " ha annullato la condivisione in corso",
                     msgData,
                     "it.gruppoinfor.hometowork.SHARE_CANCELED");
@@ -564,7 +566,7 @@ namespace HomeToWork_API.Controllers
 
             #pragma warning disable 4014
             FirebaseCloudMessanger.SendMessage(
-                guestId,
+                shareGuest.User,
                 "Sei stato espulso", Session.User + " ti ha espulso dalla condivisione in corso",
                 msgData,
                 "it.gruppoinfor.hometowork.SHARE_BAN");

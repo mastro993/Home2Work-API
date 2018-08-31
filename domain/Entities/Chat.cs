@@ -6,7 +6,7 @@ namespace domain.Entities
     public class Chat
     {
         public long Id { get; set; }
-        public Author User { get; set; }
+        public User User { get; set; }
         public Message LastMessage { get; set; }
         public int UnreadCount { get; set; }
     }

@@ -29,12 +29,7 @@ namespace data.Mappers
             {
                 Id = messageId,
                 ChatId = chatId,
-                Sender = new Author()
-                {
-                    Id = sender.Id,
-                    Name = sender.Name,
-                    Surname = sender.Surname
-                },
+                Sender = sender,
                 Text = messageText,
                 Time = messageTime,
                 New = messageNew

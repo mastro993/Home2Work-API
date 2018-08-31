@@ -60,9 +60,8 @@
     <Reference Include="FirebaseNet, Version=1.0.1.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\FirebaseNet.1.0.1\lib\net46\FirebaseNet.dll</HintPath>
     </Reference>
-    <Reference Include="GoogleApi">
-      <HintPath>..\packages\GoogleApi.3.3.0\lib\net45\GoogleApi.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="GoogleApi, Version=3.6.9.0, Culture=neutral, PublicKeyToken=781851e053b06e74, processorArchitecture=MSIL">
+      <HintPath>..\packages\GoogleApi.3.6.9\lib\net45\GoogleApi.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.AI.Agent.Intercept, Version=2.4.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.ApplicationInsights.Agent.Intercept.2.4.0\lib\net45\Microsoft.AI.Agent.Intercept.dll</HintPath>
@@ -123,8 +122,8 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="System.Data.SqlClient, Version=4.2.0.2, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Data.SqlClient.4.4.3\lib\net461\System.Data.SqlClient.dll</HintPath>
+    <Reference Include="System.Data.SqlClient, Version=4.4.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Data.SqlClient.4.5.1\lib\net461\System.Data.SqlClient.dll</HintPath>
     </Reference>
     <Reference Include="System.Diagnostics.DiagnosticSource, Version=4.0.2.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Diagnostics.DiagnosticSource.4.4.1\lib\net46\System.Diagnostics.DiagnosticSource.dll</HintPath>
@@ -287,7 +286,8 @@
     <Compile Include="Areas\HelpPage\XmlDocumentationProvider.cs" />
     <Compile Include="Controllers\ChatController.cs" />
     <Compile Include="Controllers\CompanyController.cs" />
-    <Compile Include="Controllers\FirebaseController.cs" />
+    <Compile Include="Controllers\DashboardController.cs" />
+    <Compile Include="Controllers\DataController.cs" />
     <Compile Include="Controllers\LocationController.cs" />
     <Compile Include="Controllers\MatchController.cs" />
     <Compile Include="Controllers\LeaderboardsController.cs" />
@@ -307,12 +307,70 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Areas\HelpPage\HelpPage.css" />
+    <Content Include="Assets\css\bootstrap.min.css" />
+    <Content Include="Assets\css\demo.css" />
+    <Content Include="Assets\css\light-bootstrap-dashboard.css" />
+    <Content Include="Assets\fonts\nucleo-icons.svg" />
+    <Content Include="Assets\img\apple-icon.png" />
+    <Content Include="Assets\img\default-avatar.png" />
+    <Content Include="Assets\img\faces\face-0.jpg" />
+    <Content Include="Assets\img\faces\face-1.jpg" />
+    <Content Include="Assets\img\faces\face-2.jpg" />
+    <Content Include="Assets\img\faces\face-3.jpg" />
+    <Content Include="Assets\img\faces\face-4.jpg" />
+    <Content Include="Assets\img\faces\face-5.jpg" />
+    <Content Include="Assets\img\faces\face-6.jpg" />
+    <Content Include="Assets\img\faces\face-7.jpg" />
+    <Content Include="Assets\img\faces\tim_vector.jpe" />
+    <Content Include="Assets\img\favicon.ico" />
+    <Content Include="Assets\img\full-screen-image-3.jpg" />
+    <Content Include="Assets\img\loading-bubbles.svg" />
+    <Content Include="Assets\img\mask.png" />
+    <Content Include="Assets\img\new_logo.png" />
+    <Content Include="Assets\img\sidebar-1.jpg" />
+    <Content Include="Assets\img\sidebar-2.jpg" />
+    <Content Include="Assets\img\sidebar-3.jpg" />
+    <Content Include="Assets\img\sidebar-4.jpg" />
+    <Content Include="Assets\img\sidebar-5.jpg" />
+    <Content Include="Assets\img\tim_80x80.png" />
+    <Content Include="Assets\js\core\jquery.3.2.1.min.js" />
+    <Content Include="Assets\js\plugins\bootstrap-datepicker.js" />
+    <Content Include="Assets\js\plugins\bootstrap-switch.js" />
+    <Content Include="Assets\js\plugins\chartist.min.js" />
+    <Content Include="Assets\js\plugins\nouislider.min.js" />
+    <Content Include="Content\animate.min.css" />
+    <Content Include="Content\Fonts\Pe-icon-7-stroke.svg" />
+    <Content Include="Content\Images\default-avatar.png" />
+    <Content Include="Content\Images\faces\face-0.jpg" />
+    <Content Include="Content\Images\faces\face-1.jpg" />
+    <Content Include="Content\Images\faces\face-2.jpg" />
+    <Content Include="Content\Images\faces\face-3.jpg" />
+    <Content Include="Content\Images\faces\face-4.jpg" />
+    <Content Include="Content\Images\faces\face-5.jpg" />
+    <Content Include="Content\Images\faces\face-6.jpg" />
+    <Content Include="Content\Images\faces\face-7.jpg" />
+    <Content Include="Content\Images\faces\tim_vector.jpe" />
+    <Content Include="Content\Images\favicon.ico" />
+    <Content Include="Content\Images\full-screen-image-3.jpg" />
+    <Content Include="Content\Images\loading-bubbles.svg" />
+    <Content Include="Content\Images\mask.png" />
+    <Content Include="Content\Images\new_logo.png" />
+    <Content Include="Content\Images\sidebar-1.jpg" />
+    <Content Include="Content\Images\sidebar-2.jpg" />
+    <Content Include="Content\Images\sidebar-3.jpg" />
+    <Content Include="Content\Images\sidebar-4.jpg" />
+    <Content Include="Content\Images\sidebar-5.jpg" />
+    <Content Include="Content\Images\tim_80x80.png" />
     <Content Include="Content\bootstrap-grid.css" />
     <Content Include="Content\bootstrap-grid.min.css" />
     <Content Include="Content\bootstrap-reboot.css" />
     <Content Include="Content\bootstrap-reboot.min.css" />
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
+    <Content Include="Content\demo.css" />
+    <Content Include="Content\light-bootstrap-dashboard.css" />
+    <Content Include="Content\pe-icon-7-stroke.css" />
+    <Content Include="Assets\css\style-dashboard.css" />
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
     <Content Include="ApplicationInsights.config">
@@ -344,15 +402,84 @@
     <Content Include="Content\bootstrap-reboot.css.map" />
     <Content Include="Content\bootstrap-grid.min.css.map" />
     <Content Include="Content\bootstrap-grid.css.map" />
+    <Content Include="Content\Fonts\Pe-icon-7-stroke.eot" />
+    <Content Include="Content\Fonts\Pe-icon-7-stroke.ttf" />
+    <Content Include="Content\Fonts\Pe-icon-7-stroke.woff" />
+    <Content Include="Content\lbd\mixins\_buttons.scss" />
+    <Content Include="Content\lbd\mixins\_cards.scss" />
+    <Content Include="Content\lbd\mixins\_chartist.scss" />
+    <Content Include="Content\lbd\mixins\_icons.scss" />
+    <Content Include="Content\lbd\mixins\_inputs.scss" />
+    <Content Include="Content\lbd\mixins\_labels.scss" />
+    <Content Include="Content\lbd\mixins\_morphing-buttons.scss" />
+    <Content Include="Content\lbd\mixins\_navbars.scss" />
+    <Content Include="Content\lbd\mixins\_social-buttons.scss" />
+    <Content Include="Content\lbd\mixins\_tabs.scss" />
+    <Content Include="Content\lbd\mixins\_transparency.scss" />
+    <Content Include="Content\lbd\mixins\_vendor-prefixes.scss" />
+    <Content Include="Content\lbd\_alerts.scss" />
+    <Content Include="Content\lbd\_buttons.scss" />
+    <Content Include="Content\lbd\_cards.scss" />
+    <Content Include="Content\lbd\_chartist.scss" />
+    <Content Include="Content\lbd\_checkbox-radio-switch.scss" />
+    <Content Include="Content\lbd\_dropdown.scss" />
+    <Content Include="Content\lbd\_footers.scss" />
+    <Content Include="Content\lbd\_inputs.scss" />
+    <Content Include="Content\lbd\_misc.scss" />
+    <Content Include="Content\lbd\_mixins.scss" />
+    <Content Include="Content\lbd\_navbars.scss" />
+    <Content Include="Content\lbd\_responsive.scss" />
+    <Content Include="Content\lbd\_sidebar-and-main-panel.scss" />
+    <Content Include="Content\lbd\_tables.scss" />
+    <Content Include="Content\lbd\_typography.scss" />
+    <Content Include="Content\lbd\_variables.scss" />
+    <Content Include="Content\light-bootstrap-dashboard.scss" />
+    <Content Include="Assets\fonts\nucleo-icons.eot" />
+    <Content Include="Assets\fonts\nucleo-icons.ttf" />
+    <Content Include="Assets\fonts\nucleo-icons.woff" />
+    <Content Include="Assets\fonts\nucleo-icons.woff2" />
+    <Content Include="Assets\sass\lbd\mixins\_buttons.scss" />
+    <Content Include="Assets\sass\lbd\mixins\_cards.scss" />
+    <Content Include="Assets\sass\lbd\mixins\_chartist.scss" />
+    <Content Include="Assets\sass\lbd\mixins\_icons.scss" />
+    <Content Include="Assets\sass\lbd\mixins\_inputs.scss" />
+    <Content Include="Assets\sass\lbd\mixins\_labels.scss" />
+    <Content Include="Assets\sass\lbd\mixins\_morphing-buttons.scss" />
+    <Content Include="Assets\sass\lbd\mixins\_navbars.scss" />
+    <Content Include="Assets\sass\lbd\mixins\_social-buttons.scss" />
+    <Content Include="Assets\sass\lbd\mixins\_tabs.scss" />
+    <Content Include="Assets\sass\lbd\mixins\_transparency.scss" />
+    <Content Include="Assets\sass\lbd\mixins\_vendor-prefixes.scss" />
+    <Content Include="Assets\sass\lbd\plugins\_animate.scss" />
+    <Content Include="Assets\sass\lbd\plugins\_datetime-picker.scss" />
+    <Content Include="Assets\sass\lbd\_alerts.scss" />
+    <Content Include="Assets\sass\lbd\_bootstrap-switch.scss" />
+    <Content Include="Assets\sass\lbd\_buttons.scss" />
+    <Content Include="Assets\sass\lbd\_cards.scss" />
+    <Content Include="Assets\sass\lbd\_chartist.scss" />
+    <Content Include="Assets\sass\lbd\_checkbox-radio-switch.scss" />
+    <Content Include="Assets\sass\lbd\_dropdown.scss" />
+    <Content Include="Assets\sass\lbd\_footers.scss" />
+    <Content Include="Assets\sass\lbd\_inputs.scss" />
+    <Content Include="Assets\sass\lbd\_misc.scss" />
+    <Content Include="Assets\sass\lbd\_mixins.scss" />
+    <Content Include="Assets\sass\lbd\_navbars.scss" />
+    <Content Include="Assets\sass\lbd\_partial-nucleo-icons.scss" />
+    <Content Include="Assets\sass\lbd\_responsive.scss" />
+    <Content Include="Assets\sass\lbd\_sidebar-and-main-panel.scss" />
+    <Content Include="Assets\sass\lbd\_tables.scss" />
+    <Content Include="Assets\sass\lbd\_typography.scss" />
+    <Content Include="Assets\sass\lbd\_variables.scss" />
+    <Content Include="Assets\sass\light-bootstrap-dashboard.scss" />
     <None Include="Properties\PublishProfiles\HomeToWorkAPI - Web Deploy.pubxml" />
-    <Content Include="Scripts\bootstrap.bundle.js" />
-    <Content Include="Scripts\bootstrap.bundle.min.js" />
-    <Content Include="Scripts\bootstrap.js" />
-    <Content Include="Scripts\bootstrap.min.js" />
-    <Content Include="Scripts\bootstrap.min.js.map" />
-    <Content Include="Scripts\bootstrap.js.map" />
-    <Content Include="Scripts\bootstrap.bundle.min.js.map" />
-    <Content Include="Scripts\bootstrap.bundle.js.map" />
+    <Content Include="Assets\img\home2work-logo-white.png" />
+    <Content Include="Assets\js\plugins\bootstrap-notify.js" />
+    <Content Include="Assets\js\plugins\bootstrap-select.js" />
+    <Content Include="Assets\js\core\bootstrap.bundle.js" />
+    <Content Include="Assets\js\core\bootstrap.bundle.min.js" />
+    <Content Include="Assets\js\core\bootstrap.js" />
+    <Content Include="Assets\js\core\bootstrap.min.js" />
+    <Content Include="Assets\js\demo.js" />
     <Content Include="Scripts\esm\popper-utils.js" />
     <Content Include="Scripts\esm\popper-utils.min.js" />
     <Content Include="Scripts\esm\popper.js" />
@@ -361,16 +488,21 @@
     <Content Include="Scripts\esm\popper.js.map" />
     <Content Include="Scripts\esm\popper-utils.min.js.map" />
     <Content Include="Scripts\esm\popper-utils.js.map" />
-    <None Include="Scripts\jquery-3.3.1.intellisense.js" />
-    <Content Include="Scripts\jquery-3.3.1.js" />
-    <Content Include="Scripts\jquery-3.3.1.min.js" />
-    <Content Include="Scripts\jquery-3.3.1.slim.js" />
-    <Content Include="Scripts\jquery-3.3.1.slim.min.js" />
-    <Content Include="Scripts\modernizr-2.8.3.js" />
+    <Content Include="Assets\js\core\bootstrap.min.js.map" />
+    <Content Include="Assets\js\core\bootstrap.js.map" />
+    <Content Include="Assets\js\core\bootstrap.bundle.min.js.map" />
+    <Content Include="Assets\js\core\bootstrap.bundle.js.map" />
+    <None Include="Assets\js\core\jquery-3.3.1.intellisense.js" />
+    <Content Include="Assets\js\core\jquery-3.3.1.js" />
+    <Content Include="Assets\js\core\jquery-3.3.1.min.js" />
+    <Content Include="Assets\js\core\jquery-3.3.1.slim.js" />
+    <Content Include="Assets\js\core\jquery-3.3.1.slim.min.js" />
+    <Content Include="Assets\js\light-bootstrap-dashboard.js" />
+    <Content Include="Assets\js\core\modernizr-2.8.3.js" />
     <Content Include="Scripts\popper-utils.js" />
     <Content Include="Scripts\popper-utils.min.js" />
-    <Content Include="Scripts\popper.js" />
-    <Content Include="Scripts\popper.min.js" />
+    <Content Include="Assets\js\core\popper.js" />
+    <Content Include="Assets\js\core\popper.min.js" />
     <Content Include="Scripts\respond.js" />
     <Content Include="Scripts\respond.matchmedia.addListener.js" />
     <Content Include="Scripts\respond.matchmedia.addListener.min.js" />
@@ -390,23 +522,34 @@
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Areas\HelpPage\Views\_ViewStart.cshtml" />
-    <Content Include="Content\Site.css" />
+    <Content Include="Assets\css\style.css" />
     <Content Include="Views\Web.config" />
     <Content Include="Views\_ViewStart.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
-    <Content Include="Scripts\jquery-3.3.1.slim.min.map" />
-    <Content Include="Scripts\jquery-3.3.1.min.map" />
+    <Content Include="Assets\js\core\jquery-3.3.1.slim.min.map" />
+    <Content Include="Assets\js\core\jquery-3.3.1.min.map" />
     <Content Include="Scripts\umd\popper.min.js.map" />
     <Content Include="Scripts\umd\popper.js.map" />
     <Content Include="Scripts\umd\popper-utils.min.js.map" />
     <Content Include="Scripts\umd\popper-utils.js.map" />
     <Content Include="Scripts\README.md" />
-    <Content Include="Scripts\popper.min.js.map" />
-    <Content Include="Scripts\popper.js.map" />
+    <Content Include="Assets\js\core\popper.min.js.map" />
+    <Content Include="Assets\js\core\popper.js.map" />
     <Content Include="Scripts\popper-utils.min.js.map" />
     <Content Include="Scripts\popper-utils.js.map" />
+    <Content Include="Views\Dashboard\Index.cshtml" />
+    <Content Include="Views\Dashboard\_ViewStart.cshtml" />
+    <Content Include="Views\Home\_ViewStart.cshtml" />
+    <Content Include="Views\Home\_Layout.cshtml" />
+    <Content Include="Views\Dashboard\_Layout.cshtml" />
+    <Content Include="Views\Dashboard\Users.cshtml" />
+    <Content Include="Views\Dashboard\Companies.cshtml" />
+    <Content Include="Views\Dashboard\Locations.cshtml" />
+    <Content Include="Views\Dashboard\Routines.cshtml" />
+    <Content Include="Views\Dashboard\Matches.cshtml" />
+    <Content Include="Views\Dashboard\Settings.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -469,9 +612,9 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.8\build\net45\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.8\build\net45\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props'))" />
     <Error Condition="!Exists('..\packages\Microsoft.Net.Compilers.2.7.0\build\Microsoft.Net.Compilers.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Net.Compilers.2.7.0\build\Microsoft.Net.Compilers.props'))" />
-    <Error Condition="!Exists('..\packages\NETStandard.Library.2.0.1\build\netstandard2.0\NETStandard.Library.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\NETStandard.Library.2.0.1\build\netstandard2.0\NETStandard.Library.targets'))" />
+    <Error Condition="!Exists('..\packages\NETStandard.Library.2.0.3\build\netstandard2.0\NETStandard.Library.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\NETStandard.Library.2.0.3\build\netstandard2.0\NETStandard.Library.targets'))" />
   </Target>
-  <Import Project="..\packages\NETStandard.Library.2.0.1\build\netstandard2.0\NETStandard.Library.targets" Condition="Exists('..\packages\NETStandard.Library.2.0.1\build\netstandard2.0\NETStandard.Library.targets')" />
+  <Import Project="..\packages\NETStandard.Library.2.0.3\build\netstandard2.0\NETStandard.Library.targets" Condition="Exists('..\packages\NETStandard.Library.2.0.3\build\netstandard2.0\NETStandard.Library.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

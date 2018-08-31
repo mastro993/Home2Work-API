@@ -1,0 +1,34 @@
+﻿body, html { height: 100%; }
+
+.gradient-bg {
+    /* The image used */
+    background-image: linear-gradient(to bottom right, #66BB6A, #42A5F5);
+    /* Full height */
+    height: 100%;
+    /* Center and scale the image nicely */
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.home-logo {
+    max-width: 30vw;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: auto;
+}
+
+@media (max-width: 1280px) {
+    .home-logo {
+        max-width: 50vw;
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        margin: auto;    
+    }
+}

@@ -210,5 +210,29 @@ namespace HomeToWork_API.Controllers
                 return InternalServerError(e);
             }
         }
+
+        [HttpPost]
+        [Route("api/user/firebase_token")]
+        public IHttpActionResult PostFcmToken(FormDataCollection data)
+        {
+            if (!Session.Authorized)
+            {
+                return Unauthorized();
+            }
+
+            var valueMap = FormDataConverter.Convert(data);
+            var newToken = valueMap.Get("token");
+
+            if (newToken.IsNullOrWhiteSpace())
+            {
+                return BadRequest("Token Firebase Cloud Messaging mancante");
+            }
+
+            var updated = _userRepo.SetUserFirebaseToken(Session.User.Id, newToken);
+
+            return Ok(updated);
+        }
+
+
     }
 }

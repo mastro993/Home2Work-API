@@ -15,17 +15,14 @@ namespace data.Repositories
     {
         private readonly Mapper<SqlDataReader, Location> _mapper = new LocationSqlMapper();
 
-        public List<Location> GetAllUserLocations(long userId, bool byDate)
+        public List<Location> GetUserLocations(long userId)
         {
             var con = new SqlConnection(Config.ConnectionString);
             var cmd = new SqlCommand
             {
-                CommandText = $"SELECT * FROM location WHERE user_id = {userId}",
+                CommandText = $"get_all_user_locations {userId}",
                 Connection = con
             };
-
-            if (byDate)
-                cmd.CommandText += " ORDER BY time ASC";
 
             con.Open();
 
@@ -44,7 +41,33 @@ namespace data.Repositories
             return locations;
         }
 
-        public List<Location> GetAllUserLocations(long userId, DayOfWeek weekday, bool byDate)
+        public List<Location> GetCompanyLocations(long companyId)
+        {
+            var con = new SqlConnection(Config.ConnectionString);
+            var cmd = new SqlCommand
+            {
+                CommandText = $"get_all_company_locations {companyId}",
+                Connection = con
+            };
+
+            con.Open();
+
+            var locations = new List<Location>();
+
+            using (var reader = cmd.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    locations.Add(_mapper.MapFrom(reader));
+                }
+            }
+
+            con.Close();
+
+            return locations;
+        }
+
+        public List<Location> GetUserLocations(long userId, DayOfWeek weekday, bool byDate)
         {
             var con = new SqlConnection(Config.ConnectionString);
             var cmd = new SqlCommand
@@ -55,6 +78,38 @@ namespace data.Repositories
 
             if (byDate)
                 cmd.CommandText += " ORDER BY time ASC";
+
+            try
+            {
+                con.Open();
+
+                var locations = new List<Location>();
+
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        locations.Add(_mapper.MapFrom(reader));
+                    }
+                }
+
+                return locations;
+            }
+            finally
+            {
+                con.Close();
+            }
+        }
+
+        public List<Location> GetUserLocationsInRange(long userId, double centerLat, double centerLng, int radiusInMeters)
+        {
+
+            var con = new SqlConnection(Config.ConnectionString);
+            var cmd = new SqlCommand
+            {
+                CommandText = $@"get_user_locations_in_range {userId}, {centerLat.ToString(CultureInfo.InvariantCulture)}, {centerLng.ToString(CultureInfo.InvariantCulture)}, {radiusInMeters}",
+                Connection = con
+            };
 
             try
             {

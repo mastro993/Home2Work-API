@@ -17,11 +17,10 @@ namespace domain.Interfaces
         bool AddExpToUser(long userId, long exp);
         UserStats GetUserStats(long userId);
         Dictionary<string, SharingActivity> GetUserMonthlyActivity(long userId);
-
         bool UpdateUserStatus(long userId, string status);
-
         bool HideUserStatus(long userId);
-
         ProfileStatus GetUserStatus(long userId);
+        string GetUserFirebaseToken(long userId);
+        bool SetUserFirebaseToken(long userId, string token);
     }
 }

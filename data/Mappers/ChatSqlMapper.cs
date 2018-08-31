@@ -39,21 +39,11 @@ namespace data.Mappers
             return new Chat()
             {
                 Id = chatId,
-                User = new Author()
-                {
-                    Id = user.Id,
-                    Name = user.Name,
-                    Surname = user.Surname
-                },
+                User = user,
                 LastMessage = new Message()
                 {
                     Id = lastMessageId,
-                    Sender = new Author()
-                    {
-                        Id = lastMsgSender?.Id ?? 0,
-                        Name = lastMsgSender?.Name ?? "",
-                        Surname = lastMsgSender?.Surname ?? ""
-                    },
+                    Sender = lastMsgSender,
                     Text = lastMsgText,
                     Time = lastMsgTime,
                     New = lastMsgNew

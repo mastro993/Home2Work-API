@@ -507,5 +507,54 @@ namespace data.Repositories
                 con.Close();
             }
         }
+
+        public string GetUserFirebaseToken(long userId)
+        {
+            var con = new SqlConnection(Config.ConnectionString);
+            var cmd = new SqlCommand
+            {
+                CommandText = $"get_user_firebase_token {userId}",
+                Connection = con
+            };
+
+
+            con.Open();
+
+            string token = null;
+
+            using (var reader = cmd.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    token = reader["token"].ToString();
+                }
+            }
+
+            con.Close();
+
+            return token;
+        }
+
+        public bool SetUserFirebaseToken(long userId, string token)
+        {
+            var con = new SqlConnection(Config.ConnectionString);
+            var cmd = new SqlCommand
+            {
+                CommandText = $"update_user_firebase_token {userId}, '{token}'",
+                Connection = con
+            };
+
+
+            con.Open();
+
+            try
+            {
+                return cmd.ExecuteNonQuery() > 0;
+            }
+            finally
+            {
+                con.Close();
+            }
+        }
     }
 }

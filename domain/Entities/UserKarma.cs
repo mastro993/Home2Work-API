@@ -11,7 +11,7 @@ namespace domain.Entities
         public double NextLvlKarma { get; set; }
         public int MonthKarma { get; set; }
 
-        private const double Threshold = 50.0;
+        private const double Threshold = 40.0;
 
         public UserKarma(long amount)
         {
@@ -23,13 +23,15 @@ namespace domain.Entities
 
         private static int GetLevel(long karma)
         {
-            var level = (1.0 + Math.Sqrt(1.0 + 8.0 * (karma / Threshold))) / 2;
+            //var level = (1.0 + Math.Sqrt(1.0 + 8.0 * (karma / Threshold))) / 2;
+            var level = 1.0 + Math.Sqrt((karma + Threshold) / Threshold);
             return (int) level;
         }
 
         private static int ForLevel(int targetLevel)
         {
-            var exp = (Math.Pow(targetLevel, 2) - targetLevel) * Threshold / 2;
+            //var exp = (Math.Pow(targetLevel, 2) - targetLevel) * Threshold / 2;
+            var exp = Threshold * (Math.Pow(targetLevel, 2) - 2 * targetLevel);
             return (int) exp;
         }
     }

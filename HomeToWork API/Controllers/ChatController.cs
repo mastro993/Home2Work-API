@@ -86,11 +86,10 @@ namespace HomeToWork_API.Controllers
                 {"CHAT_ID", chatId.ToString()},
                 {"MESSAGE_ID", messageId.ToString()}
             };
-            var recipientId = chat.User.Id;
 
             #pragma warning disable 4014
             FirebaseCloudMessanger.SendMessage(
-                recipientId,
+                chat.User,
                 "Nuovo messaggio", Session.User + " ti ha inviato un nuovo messaggio",
                 msgData,
                 "it.gruppoinfor.hometowork.NEW_MESSAGE");
