@@ -1,0 +1,123 @@
+﻿@using domain.Entities
+@using HomeToWork_API.Controllers
+<div class="container-fluid">
+
+    <div class="row">
+        <div class="col-md-12">
+
+
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card strpied-tabled-with-hover">
+                <div class="card-header ">
+                    <button type="button" class="btn btn-primary float-right" data-toggle="modal" data-target="#addCompanyModal" style="cursor: pointer"><i class="fas fa-plus"></i>  Aggiungi azienda</button>
+                    <h4 class="card-title">Aziende</h4>
+                    <p class="card-category">Lista aziende iscritte al sistema</p>
+                </div>
+                <div class="card-body table-full-width table-responsive">
+                    <table class="table table-hover table-striped">
+                        <thead>
+                        <th>ID</th>
+                        <th>Nome</th>
+                        <th>Registrazione</th>
+                        </thead>
+                        <tbody>
+
+                            @foreach (User user in ViewBag.Users)
+                            {
+                                <tr onclick="document.location = '/users/details/@user.Id';" style="cursor: pointer">
+                                    <td>@user.Id</td>
+                                    <td>@user.Name</td>
+                                    <td>@user.Regdate.Date.ToString("dd/MM/yyyy")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="deleteCompanyModal" tabindex="-1" role="dialog" aria-labelledby="deleteCompanyModal" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Elimina azienda</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                ...
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal info azienda -->
+<div class="modal fade" id="companyInfoModal" tabindex="-1" role="dialog" aria-labelledby="companyInfoModal" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">New message</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group">
+                        <label for="recipient-name" class="col-form-label">Recipient:</label>
+                        <input type="text" class="form-control" id="recipient-name">
+                    </div>
+                    <div class="form-group">
+                        <label for="message-text" class="col-form-label">Message:</label>
+                        <textarea class="form-control" id="message-text"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Send message</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal aggiunta azienda -->
+<div class="modal fade" id="addCompanyModal" tabindex="-1" role="dialog" aria-labelledby="addCompanyModal" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Aggiungi nuova azienda</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group">
+                        <label for="recipient-name" class="col-form-label">Recipient:</label>
+                        <input type="text" class="form-control" id="recipient-name">
+                    </div>
+                    <div class="form-group">
+                        <label for="message-text" class="col-form-label">Message:</label>
+                        <textarea class="form-control" id="message-text"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Send message</button>
+            </div>
+        </div>
+    </div>
+</div>

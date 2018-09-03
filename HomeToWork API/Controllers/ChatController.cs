@@ -27,7 +27,7 @@ namespace HomeToWork_API.Controllers
         }
 
         [HttpGet]
-        [Route("api/chat/list")]
+        [Route("chat/list")]
         public IHttpActionResult GetChatList()
         {
             if (!Session.Authorized)
@@ -40,7 +40,7 @@ namespace HomeToWork_API.Controllers
         }
 
         [HttpGet]
-        [Route("api/chat/{chatId:int}")]
+        [Route("chat/{chatId:int}")]
         public IHttpActionResult GetChatMessages(int chatId)
         {
             if (!Session.Authorized)
@@ -55,7 +55,7 @@ namespace HomeToWork_API.Controllers
         }
 
         [HttpPost]
-        [Route("api/chat/{chatId:int}")]
+        [Route("chat/{chatId:int}")]
         public IHttpActionResult PostMessage(int chatId, FormDataCollection data)
         {
             if (!Session.Authorized)
@@ -103,7 +103,7 @@ namespace HomeToWork_API.Controllers
 
 
         [HttpGet]
-        [Route("api/message/{messageId:long}")]
+        [Route("message/{messageId:long}")]
         public IHttpActionResult GetMessage(long messageId)
         {
             if (!Session.Authorized)
@@ -122,7 +122,7 @@ namespace HomeToWork_API.Controllers
         }
 
         [HttpPost]
-        [Route("api/chat/new")]
+        [Route("chat/new")]
         public IHttpActionResult PostNewChat(FormDataCollection data)
         {
             if (!Session.Authorized)

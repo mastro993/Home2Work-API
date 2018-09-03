@@ -20,7 +20,7 @@ namespace HomeToWork_API.Controllers
         }
 
         [HttpGet]
-        [Route("api/company/list")]
+        [Route("company/list")]
         public IHttpActionResult GetCompanyList()
         {
             var companies = _companyRepo.GetAll();
@@ -28,7 +28,7 @@ namespace HomeToWork_API.Controllers
         }
 
         [HttpGet]
-        [Route("api/company/{companyId:int}")]
+        [Route("company/{companyId:int}")]
         public IHttpActionResult GetCompanyById(int companyId)
         {
             var company = _companyRepo.GetById(companyId);
@@ -36,7 +36,7 @@ namespace HomeToWork_API.Controllers
         }
 
         [HttpGet]
-        [Route("api/company/{companyId:int}/profile")]
+        [Route("company/{companyId:int}/profile")]
         public IHttpActionResult GetCompanyProfile(int companyId)
         {
             // TODO profilo azienda
@@ -44,7 +44,7 @@ namespace HomeToWork_API.Controllers
         }
 
         [HttpPost]
-        [Route("api/company/insert")]
+        [Route("company/insert")]
         public IHttpActionResult PostNewCompany(Company company)
         {
             return NotFound();

@@ -21,7 +21,7 @@ namespace HomeToWork_API.Controllers
         }
 
         [HttpPost]
-        [Route("api/user/location")]
+        [Route("user/location")]
         public IHttpActionResult PostUserLocations(IEnumerable<Location> locations)
         {
             if (!Session.Authorized)
@@ -40,7 +40,7 @@ namespace HomeToWork_API.Controllers
         }
 
         [HttpPost]
-        [Route("api/user/lastlocation")]
+        [Route("user/lastlocation")]
         public IHttpActionResult PostUserLastLocation(Location location)
         {
             if (!Session.Authorized)

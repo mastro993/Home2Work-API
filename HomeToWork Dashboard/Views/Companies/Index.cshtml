@@ -1,0 +1,50 @@
+﻿@using domain.Entities
+@using HomeToWork_API.Controllers
+<div class="container-fluid">
+
+    <div class="row">
+        <div class="col-md-12">
+
+
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card strpied-tabled-with-hover">
+                <div class="card-header ">
+                    <button onclick="document.location = '/companies/add';" type="button" class="btn btn-primary float-right" style="cursor: pointer"><i class="fas fa-plus"></i>  Aggiungi azienda</button>
+                    <h4 class="card-title">Aziende</h4>
+                    <p class="card-category">Lista aziende iscritte al sistema</p>
+                </div>
+                <div class="card-body table-full-width table-responsive">
+                    <table class="table table-hover table-striped">
+                        <thead>
+                        <th>ID</th>
+                        <th>Nome</th>
+                        <th>Città</th>
+                        <th>Provincia</th>
+                        <th>CAP</th>
+                        <th>Regione</th>
+                        <th>Registrazione</th>
+                        </thead>
+                        <tbody>
+
+                            @foreach (Company company in ViewBag.Companies)
+                            {
+                                <tr onclick="document.location = '/dashboard/companies/details/@company.Id';" style="cursor: pointer">
+                                    <td>@company.Id</td>
+                                    <td>@company.Name</td>
+                                    <td>@company.Address.City</td>
+                                    <td>@company.Address.District</td>
+                                    <td>@company.Address.PostalCode</td>
+                                    <td>@company.Address.Region</td>
+                                    <td>@company.Registration.Date.ToString("dd/MM/yyyy")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -22,7 +22,7 @@ namespace HomeToWork_API.Controllers
         }
 
         [HttpGet]
-        [Route("api/match/list")]
+        [Route("match/list")]
         public IHttpActionResult GetMatches(
             [FromUri] int page = 1,
             [FromUri] int limit = int.MaxValue
@@ -47,7 +47,7 @@ namespace HomeToWork_API.Controllers
         }
 
         [HttpGet]
-        [Route("api/match/{matchId:int}")]
+        [Route("match/{matchId:int}")]
         public IHttpActionResult GetMatchById(int matchId)
         {
             if (!Session.Authorized)
@@ -69,7 +69,7 @@ namespace HomeToWork_API.Controllers
         }
 
         [HttpPut]
-        [Route("api/match")]
+        [Route("match")]
         public IHttpActionResult PutMatch(Match match)
         {
             if (!Session.Authorized)

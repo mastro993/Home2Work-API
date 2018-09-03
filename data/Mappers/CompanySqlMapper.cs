@@ -19,6 +19,7 @@ namespace data.Mappers
             var cap = @from["cap"].ToString();
             var city = @from["city"].ToString();
             var district = @from["district"].ToString();
+            var registration = LocalDateTime.Parse(@from["registration"].ToString());
 
             return new Company()
             {
@@ -34,7 +35,8 @@ namespace data.Mappers
                     City = city,
                     District = district
                 },
-                Domain = domain
+                Domain = domain,
+                Registration = registration
             };
         }
     }

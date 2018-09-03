@@ -10,6 +10,8 @@ namespace domain.Entities
         public string Domain { get; set; }
         public Address Address { get; set; }
 
+        public DateTime Registration { get; set; }
+
       
     }
 }

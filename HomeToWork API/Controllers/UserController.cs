@@ -30,7 +30,7 @@ namespace HomeToWork_API.Controllers
         }
 
         [HttpPost]
-        [Route("api/user/login")]
+        [Route("user/login")]
         [ResponseType(typeof(User))]
         public HttpResponseMessage Login(FormDataCollection data)
         {
@@ -75,7 +75,7 @@ namespace HomeToWork_API.Controllers
         }
 
         [HttpGet]
-        [Route("api/user")]
+        [Route("user")]
         public IHttpActionResult Get([FromUri] long? id = null)
         {
             if (!Session.Authorized)
@@ -116,7 +116,7 @@ namespace HomeToWork_API.Controllers
         }
 
         [HttpDelete]
-        [Route("api/user/status")]
+        [Route("user/status")]
         public IHttpActionResult Get()
         {
             if (!Session.Authorized)
@@ -130,7 +130,7 @@ namespace HomeToWork_API.Controllers
         }
 
         [HttpGet]
-        [Route("api/user/profile")]
+        [Route("user/profile")]
         public IHttpActionResult GetProfile([FromUri] long? id = null)
         {
             if (!Session.Authorized)
@@ -159,7 +159,7 @@ namespace HomeToWork_API.Controllers
         }
 
         [HttpPost]
-        [Route("api/user/avatar")]
+        [Route("user/avatar")]
         public IHttpActionResult PostAvatar()
         {
             if (!Session.Authorized)
@@ -212,7 +212,7 @@ namespace HomeToWork_API.Controllers
         }
 
         [HttpPost]
-        [Route("api/user/firebase_token")]
+        [Route("user/firebase_token")]
         public IHttpActionResult PostFcmToken(FormDataCollection data)
         {
             if (!Session.Authorized)

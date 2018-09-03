@@ -21,7 +21,7 @@ namespace HomeToWork_API.Controllers
         }
 
         [HttpGet]
-        [Route("api/user/leaderboard")]
+        [Route("user/leaderboard")]
         public IHttpActionResult GetUsersLeaderboard(
             [FromUri] Leaderboard.Type type = Leaderboard.Type.Shares,
             [FromUri] Leaderboard.Range range = Leaderboard.Range.Global,
@@ -42,7 +42,7 @@ namespace HomeToWork_API.Controllers
         }
 
         [HttpGet]
-        [Route("api/company/leaderboard")]
+        [Route("company/leaderboard")]
         public IHttpActionResult GetCompaniesLeaderboard(
             [FromUri] Leaderboard.Type? type = null,
             [FromUri] Leaderboard.Range range = Leaderboard.Range.Global,
@@ -64,7 +64,7 @@ namespace HomeToWork_API.Controllers
         }
 
         [HttpGet]
-        [Route("api/user/{userId}/leaderboard")]
+        [Route("user/{userId}/leaderboard")]
         public IHttpActionResult GetUserRankings(long userId)
         {
             if (!Session.Authorized)

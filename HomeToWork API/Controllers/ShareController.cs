@@ -31,7 +31,7 @@ namespace HomeToWork_API.Controllers
         }
 
         [HttpGet]
-        [Route("api/share/list")]
+        [Route("share/list")]
         public IHttpActionResult GetShares(
             [FromUri] int page = 1,
             [FromUri] int limit = int.MaxValue)
@@ -47,7 +47,7 @@ namespace HomeToWork_API.Controllers
         }
 
         [HttpPost]
-        [Route("api/share/new")]
+        [Route("share/new")]
         public IHttpActionResult PostNewShare(FormDataCollection data)
         {
             if (!Session.Authorized)
@@ -110,7 +110,7 @@ namespace HomeToWork_API.Controllers
         }
 
         [HttpGet]
-        [Route("api/share/{id}")]
+        [Route("share/{id}")]
         public IHttpActionResult GetShare(int id)
         {
             if (!Session.Authorized)
@@ -131,7 +131,7 @@ namespace HomeToWork_API.Controllers
         }
 
         [HttpGet]
-        [Route("api/share/current")]
+        [Route("share/current")]
         public IHttpActionResult GetCurrentShare()
         {
             if (!Session.Authorized)
@@ -151,7 +151,7 @@ namespace HomeToWork_API.Controllers
         }
 
         [HttpGet]
-        [Route("api/share/{shareId}/guests")]
+        [Route("share/{shareId}/guests")]
         public IHttpActionResult GetShareGuests(long shareId)
         {
             if (!Session.Authorized)
@@ -166,7 +166,7 @@ namespace HomeToWork_API.Controllers
 
 
         [HttpPost]
-        [Route("api/share/{shareId:int}/join")]
+        [Route("share/{shareId:int}/join")]
         public IHttpActionResult PostJoinShare(int shareId, FormDataCollection data)
         {
             if (!Session.Authorized)
@@ -251,7 +251,7 @@ namespace HomeToWork_API.Controllers
         }
 
         [HttpPost]
-        [Route("api/share/leave")]
+        [Route("share/leave")]
         public IHttpActionResult PostLeaveShare()
         {
             if (!Session.Authorized)
@@ -299,7 +299,7 @@ namespace HomeToWork_API.Controllers
         }
 
         [HttpPost]
-        [Route("api/share/complete")]
+        [Route("share/complete")]
         public IHttpActionResult PostCompleteShare(FormDataCollection data)
         {
             if (!Session.Authorized) return Unauthorized();
@@ -392,7 +392,7 @@ namespace HomeToWork_API.Controllers
         }
 
         [HttpPost]
-        [Route("api/share/finish")]
+        [Route("share/finish")]
         public IHttpActionResult PostFinishShare(FormDataCollection data)
         {
             if (!Session.Authorized)
@@ -476,7 +476,7 @@ namespace HomeToWork_API.Controllers
         }
 
         [HttpDelete]
-        [Route("api/share")]
+        [Route("share")]
         public IHttpActionResult PostCancelShare()
         {
             if (!Session.Authorized)
@@ -525,7 +525,7 @@ namespace HomeToWork_API.Controllers
         }
 
         [HttpPost]
-        [Route("api/share/ban")]
+        [Route("share/ban")]
         public IHttpActionResult PostBanUserFromShare(FormDataCollection data)
         {
             if (!Session.Authorized)

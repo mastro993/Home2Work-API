@@ -18,7 +18,7 @@ namespace HomeToWork_API.Controllers
     {
 
         [System.Web.Http.HttpGet]
-        [System.Web.Http.Route("api/data/user_locations")]
+        [System.Web.Http.Route("data/user_locations")]
         public HttpResponseMessage GetUserLocations(
             [FromUri] long? userId = null,
             [FromUri] int? year = null,
@@ -80,7 +80,7 @@ namespace HomeToWork_API.Controllers
         }
 
         [System.Web.Http.HttpGet]
-        [System.Web.Http.Route("api/data/company_locations")]
+        [System.Web.Http.Route("data/company_locations")]
         public HttpResponseMessage GetCompanyLocations(
            [FromUri] long? companyId = null,
            [FromUri] int? year = null,
