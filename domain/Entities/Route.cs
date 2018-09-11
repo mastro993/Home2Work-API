@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace domain.Entities
 {
-    class Route
+    public class Route
     {
         public Route()
         {
@@ -11,7 +11,7 @@ namespace domain.Entities
         }
 
 
-        public List<Location> Locations  { get; set; }
+        public List<Location> Locations { get; set; }
 
         public void Add(Location location)
         {

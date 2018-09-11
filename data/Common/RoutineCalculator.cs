@@ -13,6 +13,7 @@ namespace data.Common
         private readonly LocationRepository _locationRepo;
 
         private readonly int RANGE = 250;
+        private readonly int TIME_DIFF = 60 * 60;
 
         public RoutineCalculator(UserRepository userRepo, LocationRepository locationRepo)
         {
@@ -31,100 +32,69 @@ namespace data.Common
             }
         }
 
-
         private IEnumerable<UserRoutine> GetUserRoutines(User user)
         {
-            var jobStartTime = user.JobStartTime.GetValueOrDefault();
-            var jobEndTime = user.JobEndTime.GetValueOrDefault();
+            var locations = _locationRepo
+                .GetUserLocationsFromDate(user.Id, DateTime.Now.Subtract(new TimeSpan(30, 0, 0, 0)).Date)
+                .OrderBy(l => l.Date);
 
-            var homeLocations = _locationRepo.GetUserLocationsInRange(
-                    user.Id,
-                    user.Address.Latitude.GetValueOrDefault(),
-                    user.Address.Longitude.GetValueOrDefault(),
-                    RANGE)
-                .Where(l => l.Date.DayOfWeek != DayOfWeek.Saturday && l.Date.DayOfWeek != DayOfWeek.Sunday)
-                .ToList();
 
-            var jobLocations = _locationRepo.GetUserLocationsInRange(
-                    user.Id,
-                    user.JobAddress.Latitude.GetValueOrDefault(),
-                    user.JobAddress.Longitude.GetValueOrDefault(),
-                    RANGE)
-                .Where(l => l.Date.DayOfWeek != DayOfWeek.Saturday && l.Date.DayOfWeek != DayOfWeek.Sunday)
-                .ToList();
+            var routines = new List<Routine>();
+            var routine = new Routine();
 
-            var homeLocationsBeforeJob = homeLocations
-                .Where(l => l.Date.TimeOfDay.CompareTo(jobStartTime) < 0)
-                .Where(l => l.Date.TimeOfDay.CompareTo(jobStartTime.Subtract(new TimeSpan(3,0,0))) > 0)
-                .ToList();
-
-            var jobLocationsBeforeJob = jobLocations
-                .Where(l => l.Date.TimeOfDay.CompareTo(jobStartTime) < 0)
-                .Where(l => l.Date.TimeOfDay.CompareTo(jobStartTime.Subtract(new TimeSpan(3, 0, 0))) > 0)
-                .ToList();
-
-            var fromHomeTime = new TimeSpan();
-            if (homeLocationsBeforeJob.Count > 0)
+            foreach (var loc in locations)
             {
-                var fromHomeTimeAvg = homeLocationsBeforeJob.Average(l => l.Date.TimeOfDay.TotalSeconds);
-                fromHomeTime = TimeSpan.FromSeconds(fromHomeTimeAvg);
+                if (routine.IsEmpty())
+                {
+                    if (loc.Type == UserLocation.LocationType.Start)
+                    {
+                        routine.StartLocations.Add(loc);
+                    }
+                }
+                else
+                {
+                    if (loc.Type == UserLocation.LocationType.End)
+                    {
+                        routine.EndLocations.Add(loc);
+                        routines.Add(routine);
+                        routine = new Routine();
+                    }
+                }
             }
 
-            var toJobTime = new TimeSpan();
-            if (jobLocationsBeforeJob.Count > 0)
+
+            return null;
+        }
+
+
+        private class Routine
+        {
+            public List<UserLocation> StartLocations { get; set; }
+            public List<UserLocation> EndLocations { get; set; }
+            int Frequency { get; set; }
+
+            public Routine()
             {
-                var toJobTimeAvg = jobLocationsBeforeJob.Average(l => l.Date.TimeOfDay.TotalSeconds);
-                toJobTime = TimeSpan.FromSeconds(toJobTimeAvg);
+                StartLocations = new List<UserLocation>();
+                EndLocations = new List<UserLocation>();
             }
 
-            var toJobRoutine = new UserRoutine
+            public bool IsEmpty()
             {
-                StartLat = user.Address.Latitude.GetValueOrDefault(),
-                StartLng = user.Address.Longitude.GetValueOrDefault(),
-                EndLat = user.JobAddress.Latitude.GetValueOrDefault(),
-                EndLng = user.JobAddress.Longitude.GetValueOrDefault(),
-                StartTime = fromHomeTime,
-                EndTime = toJobTime,
-                Type = UserRoutine.RoutineType.Job
-            };
-
-
-            var jobLocationsAfterJob = jobLocations
-                .Where(l => l.Date.TimeOfDay.CompareTo(jobEndTime) > 0)
-                .Where(l => l.Date.TimeOfDay.CompareTo(jobEndTime.Add(new TimeSpan(3, 0, 0))) < 0)
-                .ToList();
-
-            var homeLocationsAfterJob = homeLocations
-                .Where(l => l.Date.TimeOfDay.CompareTo(jobEndTime) > 0)
-                .Where(l => l.Date.TimeOfDay.CompareTo(jobEndTime.Add(new TimeSpan(3, 0, 0))) < 0)
-                .ToList();
-
-            var toHomeTime = new TimeSpan();
-            if (homeLocationsAfterJob.Count > 0)
-            {
-                var toHomeTimeAvg = homeLocationsAfterJob.Average(l => l.Date.TimeOfDay.TotalSeconds);
-                toHomeTime = TimeSpan.FromSeconds(toHomeTimeAvg);
+                return StartLocations.Count == 0 && EndLocations.Count == 0;
             }
 
-            var fromJobTime = new TimeSpan();
-            if (jobLocationsAfterJob.Count > 0)
+            public void Add(UserLocation userLocation)
             {
-                var fromJobTimeAvg = jobLocationsAfterJob.Average(l => l.Date.TimeOfDay.TotalSeconds);
-                fromJobTime = TimeSpan.FromSeconds(fromJobTimeAvg);
+                if (userLocation.Type == UserLocation.LocationType.Start)
+                {
+                    StartLocations.Add(userLocation);
+                }
+                else
+                {
+                    EndLocations.Add(userLocation);
+                }
             }
-
-            var toHomeRoutine = new UserRoutine
-            {
-                StartLat = user.JobAddress.Latitude.GetValueOrDefault(),
-                StartLng = user.JobAddress.Longitude.GetValueOrDefault(),
-                EndLat = user.Address.Latitude.GetValueOrDefault(),
-                EndLng = user.Address.Longitude.GetValueOrDefault(),
-                StartTime = fromJobTime,
-                EndTime = toHomeTime,
-                Type = UserRoutine.RoutineType.Home
-            };
-
-            return new List<UserRoutine> {toJobRoutine, toHomeRoutine};
         }
     }
 }

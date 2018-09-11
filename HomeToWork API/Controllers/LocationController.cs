@@ -22,7 +22,7 @@ namespace HomeToWork_API.Controllers
 
         [HttpPost]
         [Route("user/location")]
-        public IHttpActionResult PostUserLocations(IEnumerable<Location> locations)
+        public IHttpActionResult PostUserLocations(IEnumerable<UserLocation> locations)
         {
             if (!Session.Authorized)
             {
@@ -33,7 +33,12 @@ namespace HomeToWork_API.Controllers
 
             foreach (var location in locationList)
             {
-                _locationRepo.InsertUserSCLLocation(Session.User.Id, location.Latitude, location.Longitude, location.Date);
+                _locationRepo.InsertUserSCLLocation(
+                    Session.User.Id, 
+                    location.Latitude, 
+                    location.Longitude,
+                    location.Date, 
+                    location.Type);
             }
 
             return Ok(true);
@@ -41,17 +46,17 @@ namespace HomeToWork_API.Controllers
 
         [HttpPost]
         [Route("user/lastlocation")]
-        public IHttpActionResult PostUserLastLocation(Location location)
+        public IHttpActionResult PostUserLastLocation(UserLocation location)
         {
             if (!Session.Authorized)
             {
                 return Unauthorized();
             }
 
-            var inserted = _locationRepo.InsertUserLastLocation(Session.User.Id, location.Latitude, location.Longitude, location.Date);
+            var inserted = _locationRepo.InsertUserLastLocation(Session.User.Id, location.Latitude, location.Longitude,
+                location.Date);
 
             return Ok(inserted);
         }
-
     }
 }

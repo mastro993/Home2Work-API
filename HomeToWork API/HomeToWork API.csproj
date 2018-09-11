@@ -492,6 +492,58 @@
     <Content Include="Assets\js\core\modernizr-2.8.3.js" />
     <Content Include="Assets\js\core\popper.js" />
     <Content Include="Assets\js\core\popper.min.js" />
+    <Content Include="Resources\Images\Avatar\10.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\Images\Avatar\23.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\Images\Avatar\3.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\Images\Avatar\38.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\Images\Avatar\40.jpg" />
+    <Content Include="Resources\Images\Avatar\41.jpg" />
+    <Content Include="Resources\Images\Avatar\42.jpg" />
+    <Content Include="Resources\Images\Avatar\43.jpg" />
+    <Content Include="Resources\Images\Avatar\44.jpg" />
+    <Content Include="Resources\Images\Avatar\45.jpg" />
+    <Content Include="Resources\Images\Avatar\46.jpg" />
+    <Content Include="Resources\Images\Avatar\47.jpg" />
+    <Content Include="Resources\Images\Avatar\48.jpg" />
+    <Content Include="Resources\Images\Avatar\49.jpg" />
+    <Content Include="Resources\Images\Avatar\5.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\Images\Avatar\39.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\Images\Avatar\50.jpg" />
+    <Content Include="Resources\Images\Avatar\51.jpg" />
+    <Content Include="Resources\Images\Avatar\52.jpg" />
+    <Content Include="Resources\Images\Avatar\53.jpg" />
+    <Content Include="Resources\Images\Avatar\55.jpg" />
+    <Content Include="Resources\Images\Avatar\56.jpg" />
+    <Content Include="Resources\Images\Avatar\57.jpg" />
+    <Content Include="Resources\Images\Avatar\58.jpg" />
+    <Content Include="Resources\Images\Avatar\59.jpg" />
+    <Content Include="Resources\Images\Avatar\60.jpg" />
+    <Content Include="Resources\Images\Avatar\61.jpg" />
+    <Content Include="Resources\Images\Avatar\62.jpg" />
+    <Content Include="Resources\Images\Avatar\63.jpg" />
+    <Content Include="Resources\Images\Avatar\64.jpg" />
+    <Content Include="Resources\Images\Avatar\65.jpg" />
+    <Content Include="Resources\Images\Avatar\7.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\Images\Avatar\8.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\Images\Avatar\9.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Scripts\esm\popper-utils.js" />
     <Content Include="Scripts\esm\popper-utils.min.js" />
     <Content Include="Scripts\esm\popper.js" />

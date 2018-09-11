@@ -13,9 +13,10 @@ namespace data.Repositories
 {
     public class LocationRepository : ILocationRespository
     {
-        private readonly Mapper<SqlDataReader, Location> _mapper = new LocationSqlMapper();
+        private readonly Mapper<SqlDataReader, UserLocation> _mapper = new LocationSqlMapper();
+        private readonly Mapper<SqlDataReader, UserLocation> _sclMapper = new SclLocationSqlMapper();
 
-        public List<Location> GetUserLocations(long userId)
+        public List<UserLocation> GetUserLocations(long userId)
         {
             var con = new SqlConnection(Config.ConnectionString);
             var cmd = new SqlCommand
@@ -26,7 +27,7 @@ namespace data.Repositories
 
             con.Open();
 
-            var locations = new List<Location>();
+            var locations = new List<UserLocation>();
 
             using (var reader = cmd.ExecuteReader())
             {
@@ -41,7 +42,7 @@ namespace data.Repositories
             return locations;
         }
 
-        public List<Location> GetCompanyLocations(long companyId)
+        public List<UserLocation> GetCompanyLocations(long companyId)
         {
             var con = new SqlConnection(Config.ConnectionString);
             var cmd = new SqlCommand
@@ -52,7 +53,7 @@ namespace data.Repositories
 
             con.Open();
 
-            var locations = new List<Location>();
+            var locations = new List<UserLocation>();
 
             using (var reader = cmd.ExecuteReader())
             {
@@ -67,7 +68,7 @@ namespace data.Repositories
             return locations;
         }
 
-        public List<Location> GetUserLocations(long userId, DayOfWeek weekday, bool byDate)
+        public List<UserLocation> GetUserLocations(long userId, DayOfWeek weekday, bool byDate)
         {
             var con = new SqlConnection(Config.ConnectionString);
             var cmd = new SqlCommand
@@ -83,13 +84,13 @@ namespace data.Repositories
             {
                 con.Open();
 
-                var locations = new List<Location>();
+                var locations = new List<UserLocation>();
 
                 using (var reader = cmd.ExecuteReader())
                 {
                     while (reader.Read())
                     {
-                        locations.Add(_mapper.MapFrom(reader));
+                        locations.Add(_sclMapper.MapFrom(reader));
                     }
                 }
 
@@ -101,13 +102,14 @@ namespace data.Repositories
             }
         }
 
-        public List<Location> GetUserLocationsInRange(long userId, double centerLat, double centerLng, int radiusInMeters)
+        public List<UserLocation> GetUserLocationsInRange(long userId, double centerLat, double centerLng,
+            int radiusInMeters)
         {
-
             var con = new SqlConnection(Config.ConnectionString);
             var cmd = new SqlCommand
             {
-                CommandText = $@"get_user_locations_in_range {userId}, {centerLat.ToString(CultureInfo.InvariantCulture)}, {centerLng.ToString(CultureInfo.InvariantCulture)}, {radiusInMeters}",
+                CommandText =
+                    $@"get_user_locations_in_range {userId}, {centerLat.ToString(CultureInfo.InvariantCulture)}, {centerLng.ToString(CultureInfo.InvariantCulture)}, {radiusInMeters}",
                 Connection = con
             };
 
@@ -115,13 +117,13 @@ namespace data.Repositories
             {
                 con.Open();
 
-                var locations = new List<Location>();
+                var locations = new List<UserLocation>();
 
                 using (var reader = cmd.ExecuteReader())
                 {
                     while (reader.Read())
                     {
-                        locations.Add(_mapper.MapFrom(reader));
+                        locations.Add(_sclMapper.MapFrom(reader));
                     }
                 }
 
@@ -133,7 +135,39 @@ namespace data.Repositories
             }
         }
 
-        public bool InsertUserSCLLocation(long userId, double latitude, double longitude, DateTime date)
+        public List<UserLocation> GetUserLocationsFromDate(long userId, DateTime date)
+        {
+            var con = new SqlConnection(Config.ConnectionString);
+            var cmd = new SqlCommand
+            {
+                CommandText = $@"get_user_locations_from_date {userId}, '{date.Date:M/d/yy}'",
+                Connection = con
+            };
+
+            try
+            {
+                con.Open();
+
+                var locations = new List<UserLocation>();
+
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        locations.Add(_sclMapper.MapFrom(reader));
+                    }
+                }
+
+                return locations;
+            }
+            finally
+            {
+                con.Close();
+            }
+        }
+
+        public bool InsertUserSCLLocation(long userId, double latitude, double longitude, DateTime date,
+            UserLocation.LocationType locationType)
         {
             var con = new SqlConnection(Config.ConnectionString);
 
@@ -142,7 +176,7 @@ namespace data.Repositories
                 CommandText =
                     $@"insert_user_scl_location {userId}, {latitude.ToString(CultureInfo.InvariantCulture)}, {
                             longitude.ToString(CultureInfo.InvariantCulture)
-                        }, @Date",
+                        }, {(int)locationType}, @Date",
                 Connection = con
             };
 

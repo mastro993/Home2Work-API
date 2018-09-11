@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using data.Repositories;
+using domain.Entities;
 
 namespace HomeToWork_Dashboard.Controllers
 {
@@ -39,6 +40,13 @@ namespace HomeToWork_Dashboard.Controllers
         {
             ViewBag.Title = "Aggiungi Azienda - Dashboard Home2Work";
             ViewBag.SelectedNavbar = 2;
+
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult Add(Company company)
+        {
 
             return View();
         }
