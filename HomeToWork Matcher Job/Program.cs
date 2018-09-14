@@ -11,19 +11,33 @@ namespace HomeToWork_Matcher_Job
 {
     class Program
     {
+
+
         static void Main(string[] args)
         {
-            Console.Out.WriteLine("Avvio routine calculator!");
-
-            var watch = System.Diagnostics.Stopwatch.StartNew();
+            // Repositories
             var userRepo = new UserRepository();
             var locationRepo = new LocationRepository();
-            var routineCalculator = new RoutineCalculator(userRepo, locationRepo);
-            routineCalculator.Execute();
+
+            // Routine calculator creation
+            var routineCalculator = new RoutineCalculator(locationRepo);
+
+            // Logging
+            Console.Out.WriteLine("Avvio routine calculator!");
+            var watch = System.Diagnostics.Stopwatch.StartNew();
+
+            // Routine calculator execution
+            foreach (var user in userRepo.GetAll())
+            {
+                var userRoutines = routineCalculator.GetRoutines(user);
+            }
+
+            // Logging
             watch.Stop();
             var elapsedMs = watch.ElapsedMilliseconds;
-
             Console.Out.WriteLine($"Ultimato in {elapsedMs / 1000.0} secondi");
+
+            // End of program
         }
     }
 }
