@@ -93,7 +93,7 @@ namespace HomeToWork_API.Controllers
         }
 
         [HttpPost]
-        [Route("api/user/status")]
+        [Route("user/status")]
         public IHttpActionResult PostStatus(FormDataCollection data)
         {
             if (!Session.Authorized)
